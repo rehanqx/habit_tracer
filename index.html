@@ -1,0 +1,3492 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="HabitFlow">
+    <meta name="theme-color" content="#0a0a0f">
+    <title>HabitFlow</title>
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="icon" type="image/png" sizes="64x64" href="favicon.png">
+    <link rel="shortcut icon" href="favicon.ico">
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+    <link rel="apple-touch-icon" href="icon-192.png">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --s1: #13131a;
+            --s2: #1c1c27;
+            --bd: #2a2a3a;
+            --a: #7c6fff;
+            --b: #ff6f9c;
+            --c: #6fffc4;
+            --t: #f0f0ff;
+            --td: #8888aa;
+            --tf: #44445a;
+            --r: 18px;
+            --rs: 12px;
+            --st: env(safe-area-inset-top, 0px);
+            --sb: env(safe-area-inset-bottom, 20px);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
+            height: 100%;
+            width: 100%;
+            background: var(--bg);
+            color: var(--t);
+            font-family: 'DM Sans', sans-serif;
+            overflow: hidden;
+            position: fixed;
+            top: 0;
+            left: 0;
+        }
+
+        #app {
+            display: flex;
+            flex-direction: column;
+            height: 100dvh;
+            width: 100%;
+            overflow: hidden;
+            padding-top: var(--st);
+        }
+
+        .hdr {
+            padding: 12px 20px 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+            border-bottom: 1px solid var(--bd);
+            background: rgba(10, 10, 15, .95);
+            backdrop-filter: blur(20px);
+            z-index: 10;
+        }
+
+        .logo {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, var(--a), var(--b));
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            box-shadow: 0 4px 16px rgba(124, 111, 255, .35);
+        }
+
+        .brand {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 20px;
+            background: linear-gradient(135deg, var(--a), var(--b));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-left: 10px;
+            letter-spacing: -.3px;
+        }
+
+        .hdr-date {
+            font-size: 11px;
+            color: var(--td);
+            line-height: 1.5;
+            text-align: right;
+        }
+
+        .sa,
+        .ps {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .sa::-webkit-scrollbar,
+        .ps::-webkit-scrollbar {
+            display: none;
+        }
+
+        .page {
+            display: none;
+            flex: 1;
+            overflow: hidden;
+            flex-direction: column;
+        }
+
+        .page.active {
+            display: flex;
+        }
+
+        .sec {
+            padding: 13px 20px;
+        }
+
+        .sec-t {
+            font-family: 'Syne', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--td);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .streak {
+            margin: 12px 20px 0;
+            background: linear-gradient(135deg, #1a1535, #1e1228);
+            border: 1px solid rgba(124, 111, 255, .3);
+            border-radius: var(--r);
+            padding: 16px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .streak::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 15% 50%, rgba(124, 111, 255, .18) 0%, transparent 55%);
+            pointer-events: none;
+        }
+
+        .s-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--a);
+            line-height: 1;
+        }
+
+        .s-lbl {
+            font-size: 11px;
+            color: var(--td);
+            margin-top: 2px;
+        }
+
+        .s-pct {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--c);
+        }
+
+        .s-plbl {
+            font-size: 10px;
+            color: var(--tf);
+            margin-top: 2px;
+        }
+
+        .ch-mini {
+            margin: 10px 20px 0;
+            border-radius: var(--r);
+            border: 1px solid rgba(255, 111, 156, .35);
+            background: linear-gradient(135deg, #1f1228, #1a1535);
+            padding: 15px 17px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: transform .15s ease;
+        }
+
+        .ch-mini:active {
+            transform: scale(.98);
+        }
+
+        .ch-mini::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 85% 15%, rgba(255, 111, 156, .13) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .ch-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 11px;
+        }
+
+        .ch-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            color: var(--b);
+            letter-spacing: .8px;
+        }
+
+        .ch-edit {
+            background: rgba(255, 111, 156, .12);
+            border: 1px solid rgba(255, 111, 156, .25);
+            border-radius: 8px;
+            padding: 3px 10px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--b);
+        }
+
+        .ch-row {
+            display: flex;
+            align-items: center;
+            gap: 13px;
+            margin-bottom: 10px;
+        }
+
+        .ch-goal {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--t);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
+        }
+
+        .ch-dates {
+            font-size: 10px;
+            color: var(--tf);
+            margin-bottom: 7px;
+        }
+
+        .ch-bw {
+            background: rgba(255, 255, 255, .07);
+            border-radius: 100px;
+            height: 5px;
+            overflow: hidden;
+        }
+
+        .ch-b {
+            height: 100%;
+            background: linear-gradient(90deg, var(--b), var(--a));
+            border-radius: 100px;
+            transition: width .8s ease;
+        }
+
+        .ch-bot {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .ch-dn {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--t);
+            line-height: 1;
+        }
+
+        .ch-dt {
+            font-size: 11px;
+            color: var(--td);
+        }
+
+        .ch-ln {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--b);
+        }
+
+        .ch-ll {
+            font-size: 10px;
+            color: var(--tf);
+        }
+
+        .ch-empty {
+            text-align: center;
+            padding: 8px 0 6px;
+            font-size: 12px;
+            color: var(--td);
+        }
+
+        .ch-sb {
+            display: inline-block;
+            margin-top: 8px;
+            padding: 8px 18px;
+            background: linear-gradient(135deg, var(--b), var(--a));
+            border-radius: 100px;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .week {
+            display: flex;
+            gap: 6px;
+            padding: 11px 20px 0;
+            overflow-x: auto;
+        }
+
+        .week::-webkit-scrollbar {
+            display: none;
+        }
+
+        .dp {
+            flex-shrink: 0;
+            width: 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 9px 0;
+            border-radius: 14px;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            transition: all .2s;
+        }
+
+        .dp.today {
+            background: linear-gradient(135deg, var(--a), var(--b));
+            border-color: transparent;
+            box-shadow: 0 4px 16px rgba(124, 111, 255, .3);
+        }
+
+        .dp.done {
+            border-color: var(--c);
+        }
+
+        .dp-n {
+            font-size: 9px;
+            font-weight: 600;
+            color: var(--td);
+        }
+
+        .dp.today .dp-n {
+            color: rgba(255, 255, 255, .8);
+        }
+
+        .dp-d {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--t);
+        }
+
+        .dp.today .dp-d {
+            color: #fff;
+        }
+
+        .dp-dot {
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: var(--tf);
+        }
+
+        .dp.done .dp-dot {
+            background: var(--c);
+        }
+
+        .dp.today .dp-dot {
+            background: rgba(255, 255, 255, .6);
+        }
+
+        .pw {
+            margin: 10px 20px 0;
+            background: var(--s1);
+            border-radius: 100px;
+            height: 5px;
+            overflow: hidden;
+        }
+
+        .pb {
+            height: 100%;
+            background: linear-gradient(90deg, var(--a), var(--b), var(--c));
+            border-radius: 100px;
+            transition: width .6s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .hl {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .hc {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--r);
+            padding: 13px 14px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            -webkit-user-select: none;
+            user-select: none;
+            transition: transform .15s ease, opacity .15s ease, box-shadow .2s ease;
+            cursor: pointer;
+        }
+
+        .hc::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: var(--hc, var(--a));
+            border-radius: 4px 0 0 4px;
+        }
+
+        .hc.done {
+            background: var(--s2);
+            border-color: rgba(111, 255, 196, .2);
+        }
+
+        .hc.done::before {
+            background: var(--c);
+        }
+
+        .hc.dragging {
+            opacity: .6;
+            transform: scale(.97);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, .6);
+            z-index: 100;
+        }
+
+        .hc.drag-over {
+            border-color: var(--a);
+            background: rgba(124, 111, 255, .08);
+        }
+
+        .drag-handle {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            cursor: grab;
+            flex-shrink: 0;
+            opacity: .3;
+            transition: opacity .2s;
+        }
+
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+
+        .hc:hover .drag-handle {
+            opacity: .7;
+        }
+
+        .drag-handle span {
+            display: block;
+            width: 14px;
+            height: 2px;
+            background: var(--td);
+            border-radius: 2px;
+        }
+
+        .h-em {
+            font-size: 24px;
+            line-height: 1;
+            flex-shrink: 0;
+        }
+
+        .h-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .h-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--t);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .hc.done .h-name {
+            color: var(--td);
+            text-decoration: line-through;
+            text-decoration-color: rgba(136, 136, 170, .4);
+        }
+
+        .h-meta {
+            font-size: 10px;
+            color: var(--tf);
+            margin-top: 3px;
+        }
+
+        .h-right {
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .cbtn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2px solid var(--bd);
+            background: transparent;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all .25s cubic-bezier(.34, 1.56, .64, 1);
+            flex-shrink: 0;
+        }
+
+        .cbtn.ck {
+            background: var(--c);
+            border-color: var(--c);
+            box-shadow: 0 4px 12px rgba(111, 255, 196, .3);
+        }
+
+        .cbtn svg {
+            width: 14px;
+            height: 14px;
+        }
+
+        .hsbg {
+            font-size: 9px;
+            color: var(--a);
+            background: rgba(124, 111, 255, .12);
+            border-radius: 6px;
+            padding: 2px 6px;
+            font-weight: 700;
+        }
+
+        .bnav {
+            flex-shrink: 0;
+            display: flex;
+            background: rgba(19, 19, 26, .97);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid var(--bd);
+            padding-top: 8px;
+            padding-bottom: max(12px, var(--sb));
+            z-index: 100;
+        }
+
+        .ni {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 3px;
+            padding: 6px 0 2px;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            transition: opacity .15s;
+        }
+
+        .ni:active {
+            opacity: .7;
+        }
+
+        .ni-i {
+            font-size: 22px;
+            line-height: 1;
+            transition: transform .25s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .ni.active .ni-i {
+            transform: scale(1.25);
+        }
+
+        .ni-l {
+            font-size: 9px;
+            color: var(--tf);
+            font-weight: 600;
+            letter-spacing: .3px;
+        }
+
+        .ni.active .ni-l {
+            color: var(--a);
+        }
+
+        /* STATS */
+        .sg {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .sc {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--r);
+            padding: 15px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            transition: border-color .2s;
+        }
+
+        .sc:hover {
+            border-color: rgba(124, 111, 255, .3);
+        }
+
+        .sc-i {
+            font-size: 20px;
+        }
+
+        .sc-v {
+            font-family: 'Syne', sans-serif;
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--t);
+        }
+
+        .sc-n {
+            font-size: 10px;
+            color: var(--td);
+        }
+
+        .hmr {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .hmc {
+            flex: 1;
+            aspect-ratio: 1;
+            border-radius: 4px;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+        }
+
+        .hmc.l1 {
+            background: rgba(124, 111, 255, .2);
+            border-color: rgba(124, 111, 255, .3);
+        }
+
+        .hmc.l2 {
+            background: rgba(124, 111, 255, .45);
+            border-color: rgba(124, 111, 255, .5);
+        }
+
+        .hmc.l3 {
+            background: rgba(124, 111, 255, .7);
+            border-color: rgba(124, 111, 255, .7);
+        }
+
+        .hmc.l4 {
+            background: var(--a);
+            border-color: var(--a);
+        }
+
+        .ycal-toggle {
+            width: 100%;
+            padding: 14px 17px;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            -webkit-user-select: none;
+            user-select: none;
+            transition: border-color .2s, background .2s;
+        }
+
+        .ycal-toggle:active {
+            opacity: .8;
+        }
+
+        .ycal-toggle-left {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .ycal-toggle-icon {
+            font-size: 18px;
+        }
+
+        .ycal-toggle-label {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--t);
+        }
+
+        .ycal-toggle-sub {
+            font-size: 10px;
+            color: var(--td);
+            margin-top: 2px;
+        }
+
+        .ycal-arrow {
+            font-size: 12px;
+            color: var(--td);
+            transition: transform .3s ease;
+        }
+
+        .ycal-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .ycal-panel {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height .4s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .ycal-panel.open {
+            max-height: 3000px;
+            margin-top: 10px;
+        }
+
+        .ycal {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .ym {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--rs);
+            padding: 11px;
+        }
+
+        .ym-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--td);
+            margin-bottom: 7px;
+            text-align: center;
+        }
+
+        .ym-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 2px;
+        }
+
+        .yd {
+            aspect-ratio: 1;
+            border-radius: 3px;
+            background: var(--s2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: 600;
+            color: var(--tf);
+        }
+
+        .yd.yd-done {
+            background: rgba(124, 111, 255, .35);
+            color: rgba(124, 111, 255, .9);
+        }
+
+        .yd.yd-today {
+            background: linear-gradient(135deg, var(--b), var(--a));
+            color: #fff;
+        }
+
+        .yd.yd-empty {
+            background: transparent;
+            border: none;
+        }
+
+        .yd-hdr {
+            aspect-ratio: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: 700;
+            color: var(--tf);
+        }
+
+        .hperf-card {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: 14px;
+            padding: 13px 15px;
+            transition: border-color .2s;
+        }
+
+        .hperf-card:hover {
+            border-color: rgba(124, 111, 255, .3);
+        }
+
+        /* FORM */
+        .af {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .fl {
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--td);
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .fi {
+            width: 100%;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--rs);
+            padding: 13px 15px;
+            color: var(--t);
+            font-family: 'DM Sans', sans-serif;
+            font-size: 16px;
+            outline: none;
+            transition: border-color .2s, box-shadow .2s;
+            -webkit-appearance: none;
+        }
+
+        .fi:focus {
+            border-color: var(--a);
+            box-shadow: 0 0 0 3px rgba(124, 111, 255, .15);
+        }
+
+        .fi::placeholder {
+            color: var(--tf);
+        }
+
+        .eg {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(46px, 1fr));
+            gap: 8px;
+            max-height: 240px;
+            overflow-y: auto;
+            padding: 8px;
+            background: rgba(19, 19, 26, .55);
+            border: 1px solid var(--bd);
+            border-radius: var(--rs);
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .eg::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .eg::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .eg::-webkit-scrollbar-thumb {
+            background: var(--bd);
+            border-radius: 10px;
+        }
+
+        .eg::-webkit-scrollbar-thumb:hover {
+            background: var(--a);
+        }
+
+        .eb {
+            aspect-ratio: 1;
+            background: var(--s1);
+            border: 1.5px solid var(--bd);
+            border-radius: 10px;
+            font-size: 22px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .18s cubic-bezier(.4, 0, .2, 1);
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .eb:hover {
+            border-color: rgba(124, 111, 255, .5);
+            background: var(--s2);
+            transform: scale(1.08);
+        }
+
+        .eb.sel {
+            border-color: var(--a);
+            background: rgba(124, 111, 255, .22);
+            box-shadow: 0 0 12px rgba(124, 111, 255, .4);
+            transform: scale(1.1);
+        }
+
+        .cr {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            padding: 4px 0;
+        }
+
+        .cd {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 3px solid transparent;
+            cursor: pointer;
+            transition: all .2s cubic-bezier(.4, 0, .2, 1);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, .35);
+            flex-shrink: 0;
+        }
+
+        .cd:hover {
+            transform: scale(1.18);
+        }
+
+        .cd.sel {
+            border-color: var(--t);
+            transform: scale(1.22);
+            box-shadow: 0 0 10px currentColor, 0 4px 12px rgba(0, 0, 0, .5);
+        }
+
+        .sbtn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, var(--a), var(--b));
+            border: none;
+            border-radius: var(--rs);
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            -webkit-appearance: none;
+            letter-spacing: .3px;
+            box-shadow: 0 6px 20px rgba(124, 111, 255, .3);
+            transition: opacity .15s, transform .15s;
+        }
+
+        .sbtn:active {
+            opacity: .85;
+            transform: scale(.98);
+        }
+
+        .sbtn2 {
+            width: 100%;
+            padding: 13px;
+            background: transparent;
+            border: 1px solid var(--bd);
+            border-radius: var(--rs);
+            color: var(--td);
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: 8px;
+        }
+
+        /* CHALLENGE PAGE */
+        .pchips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 14px;
+        }
+
+        .pch {
+            padding: 8px 14px;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: 100px;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--td);
+            cursor: pointer;
+            -webkit-user-select: none;
+            transition: all .2s;
+        }
+
+        .pch.sel {
+            background: rgba(255, 111, 156, .15);
+            border-color: var(--b);
+            color: var(--b);
+        }
+
+        /* SUGGESTIONS + ROADMAPS BUTTON */
+        .sugg-btn {
+            width: 100%;
+            padding: 14px 17px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, rgba(124, 111, 255, .12), rgba(255, 111, 156, .08));
+            border: 1px solid rgba(124, 111, 255, .35);
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all .2s;
+            -webkit-user-select: none;
+        }
+
+        .sugg-btn:active {
+            opacity: .8;
+        }
+
+        .sugg-btn-left {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+        }
+
+        .sugg-btn-icon {
+            font-size: 22px;
+        }
+
+        .sugg-btn-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--t);
+        }
+
+        .sugg-btn-sub {
+            font-size: 10px;
+            color: var(--td);
+            margin-top: 2px;
+        }
+
+        .sugg-arrow {
+            font-size: 12px;
+            color: var(--a);
+            transition: transform .3s;
+        }
+
+        .sugg-arrow.open {
+            transform: rotate(180deg);
+        }
+
+        .sugg-panel {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height .45s cubic-bezier(.4, 0, .2, 1);
+            margin-bottom: 0;
+        }
+
+        .sugg-panel.open {
+            max-height: 2000px;
+            margin-bottom: 12px;
+        }
+
+        .prof-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 12px;
+        }
+
+        .prof-tab {
+            padding: 7px 13px;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--td);
+            cursor: pointer;
+            transition: all .2s;
+            -webkit-user-select: none;
+            white-space: nowrap;
+        }
+
+        .prof-tab.active {
+            background: rgba(124, 111, 255, .18);
+            border-color: var(--a);
+            color: var(--a);
+        }
+
+        .sugg-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .sugg-card {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--rs);
+            padding: 13px 15px;
+            cursor: pointer;
+            transition: all .2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .sugg-card::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: linear-gradient(var(--a), var(--b));
+            border-radius: 3px 0 0 3px;
+        }
+
+        .sugg-card:active {
+            background: rgba(124, 111, 255, .1);
+            transform: scale(.98);
+        }
+
+        .sugg-card-top {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 4px;
+        }
+
+        .sugg-card-name {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--t);
+        }
+
+        .sugg-card-days {
+            font-size: 10px;
+            color: var(--b);
+            font-weight: 700;
+            background: rgba(255, 111, 156, .1);
+            padding: 2px 8px;
+            border-radius: 20px;
+        }
+
+        .sugg-card-desc {
+            font-size: 11px;
+            color: var(--td);
+            line-height: 1.5;
+        }
+
+        .sugg-apply {
+            margin-top: 8px;
+            padding: 7px 14px;
+            background: rgba(124, 111, 255, .15);
+            border: 1px solid rgba(124, 111, 255, .3);
+            border-radius: 20px;
+            display: inline-block;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--a);
+        }
+
+        /* ROADMAP BUTTON */
+        .road-btn {
+            width: 100%;
+            padding: 14px 17px;
+            margin-bottom: 14px;
+            background: linear-gradient(135deg, rgba(111, 255, 196, .08), rgba(124, 111, 255, .1));
+            border: 1px solid rgba(111, 255, 196, .3);
+            border-radius: var(--r);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all .2s;
+            -webkit-user-select: none;
+        }
+
+        .road-btn:active {
+            opacity: .8;
+        }
+
+        .road-panel {
+            overflow: hidden;
+            max-height: 0;
+            transition: max-height .45s cubic-bezier(.4, 0, .2, 1);
+            margin-bottom: 0;
+        }
+
+        .road-panel.open {
+            max-height: 4000px;
+            margin-bottom: 14px;
+        }
+
+        .road-tabs {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-bottom: 13px;
+            overflow-x: auto;
+        }
+
+        .road-tabs::-webkit-scrollbar {
+            display: none;
+        }
+
+        .road-tab {
+            padding: 7px 13px;
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: 100px;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--td);
+            cursor: pointer;
+            transition: all .2s;
+            -webkit-user-select: none;
+            white-space: nowrap;
+            flex-shrink: 0;
+        }
+
+        .road-tab.active {
+            background: rgba(111, 255, 196, .12);
+            border-color: var(--c);
+            color: var(--c);
+        }
+
+        .road-content {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .road-step {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--rs);
+            padding: 12px 14px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .road-step::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: var(--step-color, var(--c));
+            border-radius: 3px 0 0 3px;
+        }
+
+        .road-num {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: var(--step-color, var(--c));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            color: #0a0a0f;
+            flex-shrink: 0;
+            margin-top: 1px;
+            opacity: .9;
+        }
+
+        .road-step-body {
+            flex: 1;
+        }
+
+        .road-step-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--t);
+            margin-bottom: 3px;
+        }
+
+        .road-step-desc {
+            font-size: 11px;
+            color: var(--td);
+            line-height: 1.55;
+        }
+
+        .road-step-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-top: 7px;
+        }
+
+        .road-tag {
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 7px;
+            border-radius: 4px;
+            background: rgba(124, 111, 255, .12);
+            color: var(--a);
+            border: 1px solid rgba(124, 111, 255, .2);
+        }
+
+        .road-tag.green {
+            background: rgba(111, 255, 196, .1);
+            color: var(--c);
+            border-color: rgba(111, 255, 196, .2);
+        }
+
+        .road-tag.pink {
+            background: rgba(255, 111, 156, .1);
+            color: var(--b);
+            border-color: rgba(255, 111, 156, .2);
+        }
+
+        .road-header {
+            background: linear-gradient(135deg, rgba(111, 255, 196, .07), rgba(124, 111, 255, .07));
+            border: 1px solid rgba(111, 255, 196, .2);
+            border-radius: var(--rs);
+            padding: 12px 14px;
+            margin-bottom: 11px;
+        }
+
+        .road-header-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--t);
+            margin-bottom: 3px;
+        }
+
+        .road-header-sub {
+            font-size: 11px;
+            color: var(--td);
+            line-height: 1.5;
+        }
+
+        .dvd {
+            height: 1px;
+            background: var(--bd);
+            margin: 5px 0 15px;
+        }
+
+        .dg {
+            display: grid;
+            grid-template-columns: repeat(10, 1fr);
+            gap: 3px;
+        }
+
+        .db {
+            aspect-ratio: 1;
+            border-radius: 4px;
+            background: var(--s2);
+            border: 1px solid var(--bd);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 7px;
+            font-weight: 700;
+            color: var(--tf);
+        }
+
+        .db.past {
+            background: rgba(124, 111, 255, .25);
+            border-color: rgba(124, 111, 255, .4);
+            color: rgba(124, 111, 255, .8);
+        }
+
+        .db.tday {
+            background: linear-gradient(135deg, var(--b), var(--a));
+            border-color: transparent;
+            color: #fff;
+            box-shadow: 0 0 8px rgba(255, 111, 156, .4);
+        }
+
+        /* PROGRESS GRAPH PAGE */
+        .graph-wrap {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--r);
+            padding: 16px;
+            margin-bottom: 14px;
+        }
+
+        .graph-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--t);
+            margin-bottom: 4px;
+        }
+
+        .graph-sub {
+            font-size: 11px;
+            color: var(--td);
+            margin-bottom: 16px;
+        }
+
+        .graph-range {
+            display: flex;
+            gap: 7px;
+            margin-bottom: 16px;
+        }
+
+        .graph-range-btn {
+            flex: 1;
+            padding: 8px;
+            background: var(--s2);
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            text-align: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--td);
+            cursor: pointer;
+            transition: all .2s;
+        }
+
+        .graph-range-btn.active {
+            background: rgba(124, 111, 255, .15);
+            border-color: var(--a);
+            color: var(--a);
+        }
+
+        .graph-canvas-wrap {
+            position: relative;
+            width: 100%;
+            height: 180px;
+        }
+
+        canvas#graph-canvas {
+            width: 100%;
+            height: 180px;
+            display: block;
+        }
+
+        .graph-tooltip {
+            position: absolute;
+            background: rgba(28, 28, 39, .97);
+            border: 1px solid var(--bd);
+            border-radius: 9px;
+            padding: 8px 12px;
+            font-size: 11px;
+            color: var(--t);
+            pointer-events: none;
+            white-space: nowrap;
+            display: none;
+            backdrop-filter: blur(8px);
+        }
+
+        .graph-legend {
+            display: flex;
+            gap: 16px;
+            margin-top: 13px;
+            flex-wrap: wrap;
+        }
+
+        .graph-legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            color: var(--td);
+        }
+
+        .graph-legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .graph-stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .graph-stat {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: 13px;
+            padding: 13px 12px;
+            text-align: center;
+        }
+
+        .graph-stat-v {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--t);
+            line-height: 1;
+        }
+
+        .graph-stat-l {
+            font-size: 10px;
+            color: var(--td);
+            margin-top: 4px;
+        }
+
+        .best-day-card {
+            background: linear-gradient(135deg, #1a1535, #1e1228);
+            border: 1px solid rgba(124, 111, 255, .3);
+            border-radius: var(--r);
+            padding: 14px 16px;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .best-day-icon {
+            font-size: 28px;
+            flex-shrink: 0;
+        }
+
+        .best-day-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--a);
+            margin-bottom: 2px;
+        }
+
+        .best-day-val {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--t);
+        }
+
+        .best-day-sub {
+            font-size: 10px;
+            color: var(--tf);
+            margin-top: 2px;
+        }
+
+        .hb-hdr {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .reset-days-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 111, 156, .1);
+            border: 1px solid rgba(255, 111, 156, .28);
+            border-radius: 8px;
+            padding: 4px 11px;
+            font-family: 'Syne', sans-serif;
+            font-size: 10px;
+            font-weight: 700;
+            color: var(--b);
+            cursor: pointer;
+            transition: all .2s cubic-bezier(.4, 0, .2, 1);
+            -webkit-user-select: none;
+            user-select: none;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+        }
+
+        .reset-days-btn:hover {
+            background: rgba(255, 111, 156, .2);
+            border-color: rgba(255, 111, 156, .5);
+            box-shadow: 0 2px 10px rgba(255, 111, 156, .25);
+            transform: translateY(-1px);
+        }
+
+        .reset-days-btn:active {
+            transform: scale(.95);
+            opacity: .8;
+        }
+
+        .reset-days-btn .reset-icon {
+            font-size: 11px;
+            display: inline-block;
+            transition: transform .3s ease;
+        }
+
+        .reset-days-btn:hover .reset-icon {
+            transform: rotate(-90deg);
+        }
+
+        .habit-breakdown {
+            background: var(--s1);
+            border: 1px solid var(--bd);
+            border-radius: var(--r);
+            padding: 15px;
+        }
+
+        .hb-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .hb-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .hb-bar-wrap {
+            flex: 1;
+            background: var(--s2);
+            border-radius: 100px;
+            height: 6px;
+            overflow: hidden;
+        }
+
+        .hb-bar {
+            height: 100%;
+            border-radius: 100px;
+            transition: width .6s ease;
+        }
+
+        .hb-pct {
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--td);
+            width: 34px;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        /* MODAL */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, .8);
+            backdrop-filter: blur(8px);
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+            z-index: 500;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .25s;
+        }
+
+        .modal.open {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .msheet {
+            background: var(--s2);
+            border-top: 1px solid var(--bd);
+            border-radius: 24px 24px 0 0;
+            padding: 18px 20px max(calc(20px + var(--sb)), 30px);
+            width: 100%;
+            max-height: 88vh;
+            overflow-y: auto;
+            transform: translateY(100%);
+            transition: transform .35s cubic-bezier(.4, 0, .2, 1);
+        }
+
+        .modal.open .msheet {
+            transform: translateY(0);
+        }
+
+        .mhandle {
+            width: 36px;
+            height: 4px;
+            background: var(--bd);
+            border-radius: 100px;
+            margin: 0 auto 18px;
+        }
+
+        .mtitle {
+            font-family: 'Syne', sans-serif;
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--t);
+            margin-bottom: 18px;
+        }
+
+        .mdel {
+            width: 100%;
+            padding: 14px;
+            background: rgba(255, 111, 111, .1);
+            border: 1px solid rgba(255, 111, 111, .3);
+            border-radius: var(--rs);
+            color: #ff6f6f;
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: 6px;
+        }
+
+        .mcancel {
+            width: 100%;
+            padding: 13px;
+            background: transparent;
+            border: 1px solid var(--bd);
+            border-radius: var(--rs);
+            color: var(--td);
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            -webkit-appearance: none;
+            margin-top: 8px;
+        }
+
+        /* INSTALL BANNER */
+        .ibanner {
+            margin: 10px 20px 0;
+            background: linear-gradient(135deg, #1a2035, #151a2a);
+            border: 1px solid rgba(111, 255, 196, .3);
+            border-radius: var(--r);
+            padding: 13px 15px;
+            display: flex;
+            align-items: flex-start;
+            gap: 11px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ibanner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(ellipse at 85% 20%, rgba(111, 255, 196, .1) 0%, transparent 60%);
+            pointer-events: none;
+        }
+
+        .ib-t {
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--c);
+            margin-bottom: 3px;
+        }
+
+        .ib-d {
+            font-size: 11px;
+            color: var(--td);
+            line-height: 1.5;
+        }
+
+        .ib-x {
+            background: none;
+            border: none;
+            color: var(--tf);
+            font-size: 18px;
+            cursor: pointer;
+            padding: 0;
+            flex-shrink: 0;
+            line-height: 1;
+        }
+
+        /* ALARM BANNER */
+        .alarm-banner {
+            position: fixed;
+            top: calc(var(--st) + 12px);
+            left: 50%;
+            transform: translateX(-50%) translateY(-140%);
+            background: linear-gradient(135deg, #1f1228, #1a1535);
+            border: 1px solid var(--b);
+            border-radius: 16px;
+            padding: 15px 19px;
+            z-index: 9000;
+            min-width: 270px;
+            max-width: 330px;
+            box-shadow: 0 12px 40px rgba(255, 111, 156, .35);
+            transition: transform .4s cubic-bezier(.34, 1.56, .64, 1);
+        }
+
+        .alarm-banner.show {
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .alarm-top {
+            display: flex;
+            align-items: center;
+            gap: 11px;
+            margin-bottom: 10px;
+        }
+
+        .alarm-emoji {
+            font-size: 28px;
+        }
+
+        .alarm-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--t);
+        }
+
+        .alarm-sub {
+            font-size: 12px;
+            color: var(--td);
+            margin-top: 2px;
+        }
+
+        .alarm-btns {
+            display: flex;
+            gap: 9px;
+        }
+
+        .alarm-dismiss {
+            flex: 1;
+            padding: 10px;
+            background: rgba(255, 255, 255, .08);
+            border: 1px solid var(--bd);
+            border-radius: 11px;
+            color: var(--td);
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .alarm-done {
+            flex: 1;
+            padding: 10px;
+            background: linear-gradient(135deg, var(--b), var(--a));
+            border: none;
+            border-radius: 11px;
+            color: #fff;
+            font-family: 'Syne', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .test-ringtone-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: rgba(124, 111, 255, .1);
+            border: 1px solid rgba(124, 111, 255, .28);
+            border-radius: 9px;
+            padding: 9px 14px;
+            color: var(--a);
+            font-family: 'Syne', sans-serif;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all .2s cubic-bezier(.4, 0, .2, 1);
+            margin-top: 8px;
+            width: 100%;
+            -webkit-user-select: none;
+            user-select: none;
+        }
+
+        .test-ringtone-btn:hover {
+            background: rgba(124, 111, 255, .2);
+            border-color: var(--a);
+        }
+
+        .test-ringtone-btn.playing {
+            background: rgba(255, 111, 156, .2);
+            border-color: var(--b);
+            color: var(--b);
+            animation: pulse-ring 1s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: .85; transform: scale(.98); }
+        }
+
+        .alarm-banner.ringing {
+            animation: banner-alarm-pulse 1.25s infinite ease-in-out;
+        }
+
+        @keyframes banner-alarm-pulse {
+            0%, 100% { box-shadow: 0 12px 40px rgba(255, 111, 156, .45); }
+            50% { box-shadow: 0 16px 50px rgba(124, 111, 255, .65); }
+        }
+
+        .empty {
+            text-align: center;
+            padding: 32px 20px;
+            color: var(--tf);
+        }
+
+        .empty-i {
+            font-size: 44px;
+            margin-bottom: 10px;
+        }
+
+        .empty-t {
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .empty-cta {
+            display: inline-block;
+            margin-top: 14px;
+            padding: 10px 20px;
+            background: rgba(124, 111, 255, .15);
+            border: 1px solid rgba(124, 111, 255, .3);
+            border-radius: 100px;
+            color: var(--a);
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: calc(72px + max(14px, var(--sb)));
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: rgba(28, 28, 39, .95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--bd);
+            border-radius: 100px;
+            padding: 10px 20px;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--t);
+            z-index: 1000;
+            opacity: 0;
+            transition: all .3s cubic-bezier(.34, 1.56, .64, 1);
+            white-space: nowrap;
+            pointer-events: none;
+            box-shadow: 0 8px 28px rgba(0, 0, 0, .5);
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        @keyframes cf {
+            0% {
+                transform: translateY(-20px) rotate(0deg);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translateY(90px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .cp {
+            position: fixed;
+            width: 7px;
+            height: 7px;
+            border-radius: 2px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: cf .9s ease-out forwards;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <div class="hdr">
+            <div style="display:flex;align-items:center">
+                <div class="logo">🌊</div>
+                <div class="brand">HabitFlow</div>
+            </div>
+            <div class="hdr-date" id="hdr-date"></div>
+        </div>
+
+        <div style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+
+            <!-- TODAY -->
+            <div class="page active" id="page-today">
+                <div class="sa">
+                    <div class="ibanner" id="ibanner">
+                        <div style="font-size:22px;flex-shrink:0;margin-top:2px">📲</div>
+                        <div style="flex:1">
+                            <div class="ib-t">Add to Home Screen</div>
+                            <div class="ib-d">Install for native app feel — works offline!</div>
+                        </div>
+                        <button class="ib-x" onclick="dimissInstall()">×</button>
+                    </div>
+                    <div class="sec" style="padding-bottom:0">
+                        <div class="streak">
+                            <div style="font-size:30px">🔥</div>
+                            <div style="flex:1">
+                                <div class="s-num" id="s-num">0</div>
+                                <div class="s-lbl">day streak</div>
+                            </div>
+                            <div style="text-align:right">
+                                <div class="s-pct" id="s-pct">0%</div>
+                                <div class="s-plbl">today</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="ch-mini-wrap"></div>
+                    <div class="week" id="week"></div>
+                    <div class="pw" style="margin-top:10px">
+                        <div class="pb" id="pb" style="width:0%"></div>
+                    </div>
+                    <div class="sec">
+                        <div class="sec-t">Today's Habits</div>
+                        <div class="hl" id="hl"></div>
+                    </div>
+                    <div style="height:10px"></div>
+                </div>
+            </div>
+
+            <!-- STATS -->
+            <div class="page" id="page-stats">
+                <div class="sa">
+                    <div class="sec">
+                        <div class="sec-t">Overview</div>
+                        <div class="sg" id="sg"></div>
+                    </div>
+                    <div class="sec" style="padding-top:0">
+                        <div class="ycal-toggle" onclick="toggleHeatmap()">
+                            <div class="ycal-toggle-left">
+                                <div class="ycal-toggle-icon">🔥</div>
+                                <div>
+                                    <div class="ycal-toggle-label">4-Week Heatmap</div>
+                                    <div class="ycal-toggle-sub" id="hm-sub">Tap to view activity</div>
+                                </div>
+                            </div>
+                            <div class="ycal-arrow" id="hm-arrow">▼</div>
+                        </div>
+                        <div class="ycal-panel" id="hm-panel">
+                            <div style="margin-top:10px" id="heatmap"></div>
+                        </div>
+                    </div>
+                    <div class="sec" style="padding-top:0">
+                        <div class="ycal-toggle" onclick="toggleYcal()">
+                            <div class="ycal-toggle-left">
+                                <div class="ycal-toggle-icon">📅</div>
+                                <div>
+                                    <div class="ycal-toggle-label">Yearly Calendar</div>
+                                    <div class="ycal-toggle-sub" id="ycal-sub">Tap to view full year</div>
+                                </div>
+                            </div>
+                            <div class="ycal-arrow" id="ycal-arrow">▼</div>
+                        </div>
+                        <div class="ycal-panel" id="ycal-panel">
+                            <div class="ycal" id="ycal"></div>
+                        </div>
+                    </div>
+                    <div class="sec" style="padding-top:0">
+                        <div class="sec-t">Habit Performance</div>
+                        <div id="hperf" style="display:flex;flex-direction:column;gap:10px"></div>
+                    </div>
+                    <div style="height:10px"></div>
+                </div>
+            </div>
+
+            <!-- ADD -->
+            <div class="page" id="page-add">
+                <div class="ps">
+                    <div class="sec">
+                        <div class="sec-t">New Habit</div>
+                        <div class="af">
+                            <div><label class="fl">Habit Name</label><input class="fi" id="h-name" type="text"
+                                    placeholder="e.g. Morning Run" maxlength="30"></div>
+                            <div><label class="fl">Pick Emoji</label>
+                                <div class="eg" id="eg"></div>
+                            </div>
+                            <div><label class="fl">Color</label>
+                                <div class="cr" id="cr"></div>
+                            </div>
+                            <div><label class="fl">Alarm Time (optional)</label><input class="fi" id="h-time"
+                                    type="time">
+                                <button type="button" class="test-ringtone-btn" id="preview-btn-add" onclick="toggleRingtonePreview('preview-btn-add')">🔔 Test iPhone Ringtone</button>
+                            </div>
+                            <button class="sbtn" onclick="addHabit()">+ Create Habit</button>
+                        </div>
+                    </div>
+                    <div style="height:20px"></div>
+                </div>
+            </div>
+
+            <!-- CHALLENGE -->
+            <div class="page" id="page-challenge">
+                <div class="ps">
+                    <div class="sec">
+                        <div class="sec-t">🎯 Day Challenge</div>
+                        <div id="ch-detail"></div>
+                        <div class="dvd"></div>
+
+                        <!-- SUGGESTIONS -->
+                        <div class="sugg-btn" onclick="toggleSugg()">
+                            <div class="sugg-btn-left">
+                                <div class="sugg-btn-icon">💡</div>
+                                <div>
+                                    <div class="sugg-btn-title">Challenge Suggestions</div>
+                                    <div class="sugg-btn-sub">Bug Hunter · Pentester · Developer · and more</div>
+                                </div>
+                            </div>
+                            <div class="sugg-arrow" id="sugg-arrow">▼</div>
+                        </div>
+                        <div class="sugg-panel" id="sugg-panel">
+                            <div class="prof-tabs" id="prof-tabs"></div>
+                            <div class="sugg-list" id="sugg-list"></div>
+                            <div style="height:10px"></div>
+                        </div>
+
+                        <!-- ROADMAPS -->
+                        <div class="road-btn" onclick="toggleRoad()">
+                            <div class="sugg-btn-left">
+                                <div class="sugg-btn-icon">🗺️</div>
+                                <div>
+                                    <div class="sugg-btn-title" style="color:var(--c)">Roadmaps</div>
+                                    <div class="sugg-btn-sub">Bug Hunting · CEH · OSCP · eJPT · Pentesting</div>
+                                </div>
+                            </div>
+                            <div class="sugg-arrow" id="road-arrow" style="color:var(--c)">▼</div>
+                        </div>
+                        <div class="road-panel" id="road-panel">
+                            <div class="road-tabs" id="road-tabs"></div>
+                            <div id="road-content"></div>
+                            <div style="height:10px"></div>
+                        </div>
+
+                        <div class="dvd"></div>
+                        <div class="sec-t" style="margin-bottom:12px">Set New Challenge</div>
+                        <label class="fl">Goal Name</label>
+                        <input class="fi" id="ch-goal" type="text" placeholder="e.g. Lose 10kg, Learn Quran"
+                            maxlength="40" style="margin-bottom:14px">
+                        <label class="fl">Duration</label>
+                        <div class="pchips">
+                            <div class="pch" onclick="selPre(7,this)">7 Days</div>
+                            <div class="pch" onclick="selPre(21,this)">21 Days</div>
+                            <div class="pch sel" onclick="selPre(30,this)">30 Days</div>
+                            <div class="pch" onclick="selPre(60,this)">60 Days</div>
+                            <div class="pch" onclick="selPre(75,this)">75 Hard</div>
+                            <div class="pch" onclick="selPre(100,this)">100 Days</div>
+                        </div>
+                        <label class="fl">Or Custom Days</label>
+                        <input class="fi" id="ch-custom" type="number" placeholder="e.g. 45" min="1" max="365"
+                            style="margin-bottom:15px" oninput="clrPre()">
+                        <button class="sbtn" style="background:linear-gradient(135deg,var(--b),var(--a))"
+                            onclick="startCh()">🚀 Start Challenge</button>
+                        <button class="sbtn2" onclick="resetCh()">🗑 Reset Challenge</button>
+                        <div style="height:22px"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PROGRESS GRAPH -->
+            <div class="page" id="page-graph">
+                <div class="sa">
+                    <div class="sec">
+                        <div class="sec-t">Progress Graph</div>
+                        <!-- Stats row -->
+                        <div class="graph-stats-row" id="graph-stats-row"></div>
+                        <!-- Best day -->
+                        <div class="best-day-card" id="best-day-card"></div>
+                        <!-- Main graph -->
+                        <div class="graph-wrap">
+                            <div class="graph-title">Daily Completion Rate</div>
+                            <div class="graph-sub">Percentage of habits completed each day</div>
+                            <div class="graph-range" id="graph-range">
+                                <div class="graph-range-btn active" onclick="setRange(7,this)">7D</div>
+                                <div class="graph-range-btn" onclick="setRange(14,this)">14D</div>
+                                <div class="graph-range-btn" onclick="setRange(30,this)">30D</div>
+                                <div class="graph-range-btn" onclick="setRange(60,this)">60D</div>
+                            </div>
+                            <div class="graph-canvas-wrap">
+                                <canvas id="graph-canvas"></canvas>
+                                <div class="graph-tooltip" id="graph-tooltip"></div>
+                            </div>
+                            <div class="graph-legend">
+                                <div class="graph-legend-item">
+                                    <div class="graph-legend-dot" style="background:var(--a)"></div>Completion %
+                                </div>
+                                <div class="graph-legend-item">
+                                    <div class="graph-legend-dot" style="background:var(--b)"></div>Trend
+                                </div>
+                            </div>
+                        </div>
+                        <!-- Per-habit breakdown -->
+                        <div class="hb-hdr">
+                            <div class="sec-t" style="margin-bottom:0">Habit Breakdown</div>
+                            <button class="reset-days-btn" onclick="resetHabitDays()" title="Reset all habit days count to 0">
+                                <span class="reset-icon">↺</span> Reset Habit Days
+                            </button>
+                        </div>
+                        <div class="habit-breakdown" id="habit-breakdown"></div>
+                    </div>
+                    <div style="height:14px"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="bnav">
+            <div class="ni active" onclick="swPage('today',this)">
+                <div class="ni-i">🏠</div>
+                <div class="ni-l">Today</div>
+            </div>
+            <div class="ni" onclick="swPage('stats',this)">
+                <div class="ni-i">📊</div>
+                <div class="ni-l">Stats</div>
+            </div>
+            <div class="ni" onclick="swPage('add',this)">
+                <div class="ni-i">➕</div>
+                <div class="ni-l">Add</div>
+            </div>
+            <div class="ni" onclick="swPage('challenge',this)">
+                <div class="ni-i">🎯</div>
+                <div class="ni-l">Challenge</div>
+            </div>
+            <div class="ni" onclick="swPage('graph',this)">
+                <div class="ni-i">📈</div>
+                <div class="ni-l">Progress</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EDIT MODAL -->
+    <div class="modal" id="edit-modal">
+        <div class="msheet">
+            <div class="mhandle"></div>
+            <div class="mtitle">Edit Habit</div>
+            <div><label class="fl">Habit Name</label><input class="fi" id="e-name" type="text" maxlength="30"
+                    style="margin-bottom:14px"></div>
+            <div><label class="fl">Pick Emoji</label>
+                <div class="eg" id="e-eg" style="margin-bottom:14px"></div>
+            </div>
+            <div><label class="fl">Color</label>
+                <div class="cr" id="e-cr" style="margin-bottom:14px"></div>
+            </div>
+            <div><label class="fl">Alarm Time</label><input class="fi" id="e-time" type="time">
+                <button type="button" class="test-ringtone-btn" id="preview-btn-edit" onclick="toggleRingtonePreview('preview-btn-edit')" style="margin-bottom:14px">🔔 Test iPhone Ringtone</button>
+            </div>
+            <button class="sbtn" onclick="saveEdit()">✓ Save Changes</button>
+            <button class="mdel" onclick="deleteHabit()">🗑 Delete Habit</button>
+            <button class="mcancel" onclick="closeModal()">Cancel</button>
+        </div>
+    </div>
+
+    <!-- ALARM BANNER -->
+    <div class="alarm-banner" id="alarm-banner">
+        <div class="alarm-top">
+            <div class="alarm-emoji" id="alarm-emoji">⏰</div>
+            <div>
+                <div class="alarm-title" id="alarm-title">Time for your habit!</div>
+                <div class="alarm-sub" id="alarm-sub">Habit reminder</div>
+            </div>
+        </div>
+        <div class="alarm-btns">
+            <div class="alarm-dismiss" onclick="dismissAlarm()">Dismiss</div>
+            <div class="alarm-done" onclick="alarmMarkDone()">✓ Mark Done</div>
+        </div>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ─── EMOJIS (extended & categorized) ──────────────────────────────────────────
+        const EMOJIS = [
+            // Fitness, Sports & Active Lifestyle
+            '🏃', '🚶', '🏋️', '💪', '🚴', '🏊', '🤸', '🧘', '🧗', '🥊',
+            '⚽', '🏀', '🎾', '🥋', '🛹', '🏔️',
+            // Health, Diet, Hydration & Wellness
+            '💧', '🥗', '🍎', '🥑', '🥦', '🍳', '🥕', '☕', '🍵', '🥛',
+            '💊', '😴', '🛁', '🦷', '🩺', '🌿',
+            // Productivity, Learning, Focus & Career
+            '📚', '📖', '✍️', '🧠', '🎯', '💡', '📝', '🎓', '🔬', '🧮',
+            '⏳', '⏰', '🗓️', '💼', '📌', '📈', '📊', '💰', '🏦', '💹',
+            // Tech, Cybersecurity, Code & Engineering
+            '💻', '🖥️', '🐛', '🔐', '🛡️', '⚔️', '🔍', '🤖', '⚡', '🔧',
+            '⚙️', '🌐', '📱', '💾', '🚀', '📡', '📜', '🏹', '⚖️', '🧩',
+            // Mindfulness, Faith, Spirituality & Peace
+            '🕌', '🤲', '📿', '🌙', '🌅', '🕯️', '🕊️', '☀️', '🌸', '🌳',
+            '🍃', '🪴', '❤️', '⭐', '💎', '🏆', '🔥', '✨', '🎈', '🎉',
+            // Creative, Music, Arts, Home & Hobbies
+            '🎨', '🎵', '🎸', '🎹', '📸', '🎬', '🎮', '♟️', '🧵', '🧹',
+            '🐕', '🐈', '🚗', '✈️', '🌍', '🛒', '📦', '🔑', '🏷️', '🥇'
+        ];
+        const COLORS = [
+            '#7c6fff', '#9d72ff', '#b066ff', '#6366f1',
+            '#3b82f6', '#38bdf8', '#00bbf9', '#06b6d4',
+            '#6fffc4', '#06d6a0', '#10b981', '#22c55e',
+            '#84cc16', '#c4ff6f', '#eab308', '#fbbf24',
+            '#ffbe0b', '#ffb86f', '#ff9e00', '#ff7b00',
+            '#ff6f6f', '#ff4d4d', '#f43f5e', '#ff5388',
+            '#ff6f9c', '#ff6fd8', '#f72585', '#ec4899',
+            '#a855f7', '#d946ef', '#6fbfff', '#94a3b8'
+        ];
+        const MNTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+        const DS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+        function getToday() {
+            const d = new Date();
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        let TODAY = getToday();
+
+        // ─── PROFESSION SUGGESTIONS ───────────────────────────────────────────────────
+        const PROFESSIONS = [
+            {
+                id: 'hacker', label: '👨‍💻 Hacker', challenges: [
+                    { name: 'Zero to Hacker', days: 30, desc: 'Daily CTF practice, write-ups, and tool exploration to sharpen offensive thinking.' },
+                    { name: 'Code & Conquer', days: 60, desc: 'Build 2 hacking tools + complete 60 TryHackMe/HackTheBox rooms. Ship every week.' },
+                    { name: 'Elite Ops 100', days: 100, desc: 'Master scripting, network recon, exploitation, and post-exploitation in 100 days.' },
+                ]
+            },
+            {
+                id: 'pentester', label: '🔴 Pentester', challenges: [
+                    { name: 'OSCP Prep Sprint', days: 75, desc: 'Structured 75-day prep: network pentesting, buffer overflows, Active Directory attacks.' },
+                    { name: 'Web App Hunter', days: 30, desc: 'OWASP Top 10 deep dive — one vulnerability category per 3 days with PortSwigger labs.' },
+                    { name: 'Red Team Ready', days: 60, desc: 'Learn recon, initial access, C2 frameworks, lateral movement and evasion techniques.' },
+                ]
+            },
+            {
+                id: 'bugbounty', label: '🐛 Bug Hunter', challenges: [
+                    { name: 'First Bounty', days: 21, desc: 'Submit your first valid bug in 21 days. Focus: XSS, IDOR, open redirect. Hunt daily.' },
+                    { name: 'Hall of Fame', days: 60, desc: '60-day recon mastery — subdomains, JS analysis, API endpoints, parameter fuzzing.' },
+                    { name: 'P1 Hunter', days: 90, desc: 'Chase critical bugs: SSRF, SQLi, auth bypass. 2hrs daily recon + 1 report per week.' },
+                ]
+            },
+            {
+                id: 'developer', label: '🛠 Developer', challenges: [
+                    { name: '30 Days of Code', days: 30, desc: 'Build something every day: scripts, tools, mini-apps. Push to GitHub daily.' },
+                    { name: 'Full Stack in 60', days: 60, desc: 'Front-end to back-end: build 3 complete projects with authentication and deployment.' },
+                    { name: 'Open Source Sprint', days: 100, desc: 'Contribute to open source daily — issues, PRs, documentation, new features.' },
+                ]
+            },
+            {
+                id: 'security', label: '🛡 Security Analyst', challenges: [
+                    { name: 'SOC Analyst Bootcamp', days: 30, desc: 'SIEM, log analysis, threat hunting, incident response — one module per day.' },
+                    { name: 'Threat Intel Master', days: 45, desc: 'Study APT groups, malware families, IOC analysis, MITRE ATT&CK framework daily.' },
+                    { name: 'Blue Team Expert', days: 75, desc: 'Detection engineering, YARA rules, network forensics, and SOC playbook creation.' },
+                ]
+            }
+        ];
+
+        // ─── ROADMAPS DATA ────────────────────────────────────────────────────────────
+        const ROADMAPS = [
+            {
+                id: 'bughunting', label: '🐛 Bug Hunting',
+                title: 'Bug Bounty Hunting Roadmap', sub: 'From beginner to finding your first critical vulnerability on platforms like HackerOne & Bugcrowd.',
+                steps: [
+                    { title: 'Web Fundamentals', desc: 'Master HTTP/HTTPS, request/response cycle, cookies, sessions, same-origin policy, and browser DevTools.', tags: ['HTTP', 'HTML/JS', 'DevTools', 'Burp Suite'], color: '#6fffc4' },
+                    { title: 'OWASP Top 10', desc: 'Deep dive into XSS, SQLi, CSRF, IDOR, SSRF, XXE, broken auth, and security misconfigurations.', tags: ['XSS', 'SQLi', 'CSRF', 'IDOR'], color: '#7c6fff' },
+                    { title: 'Recon & Information Gathering', desc: 'Subdomain enumeration, JS file analysis, API endpoint discovery, Google dorking, Shodan.', tags: ['Subfinder', 'Amass', 'ffuf', 'Shodan'], color: '#ffb86f' },
+                    { title: 'Set Up Your Lab', desc: 'Install Burp Suite, set up proxy, practice on DVWA, PortSwigger Web Academy free labs.', tags: ['Burp Suite', 'DVWA', 'PortSwigger'], color: '#ff6f9c' },
+                    { title: 'Write Reports', desc: 'Learn to write clear, reproducible, impactful bug reports. CVSS scoring. PoC creation.', tags: ['Report Writing', 'CVSS', 'PoC'], color: '#6fbfff' },
+                    { title: 'Hunt on Live Programs', desc: 'Start with wide-scope programs. Focus on one target. Be consistent and patient.', tags: ['HackerOne', 'Bugcrowd', 'Intigriti'], color: '#6fffc4' },
+                ]
+            },
+            {
+                id: 'ceh', label: '🎓 CEH',
+                title: 'CEH (Certified Ethical Hacker)', sub: 'EC-Council certification covering 20 hacking domains — ideal for structured ethical hacking knowledge.',
+                steps: [
+                    { title: 'Networking Basics', desc: 'TCP/IP model, OSI layers, subnetting, DNS, ARP, DHCP, routing protocols. Foundation for everything.', tags: ['TCP/IP', 'OSI', 'Wireshark'], color: '#7c6fff' },
+                    { title: 'Footprinting & Reconnaissance', desc: 'Passive and active recon techniques, OSINT, social engineering basics, Google hacking.', tags: ['OSINT', 'Maltego', 'Recon-ng'], color: '#6fffc4' },
+                    { title: 'Scanning & Enumeration', desc: 'Port scanning with Nmap, vulnerability scanning, banner grabbing, service enumeration.', tags: ['Nmap', 'Nessus', 'Enum4linux'], color: '#ffb86f' },
+                    { title: 'System Hacking', desc: 'Password cracking, privilege escalation, maintaining access, covering tracks, steganography.', tags: ['Metasploit', 'John', 'Mimikatz'], color: '#ff6f9c' },
+                    { title: 'Web & Network Attacks', desc: 'Web app attacks, session hijacking, IDS/IPS/Firewall evasion, DoS/DDoS concepts.', tags: ['SQLmap', 'Hydra', 'Wireshark'], color: '#6fbfff' },
+                    { title: 'CEH Exam Prep', desc: '125 MCQ, 4 hours. Study EC-Council official material, practice with Matt Walker\'s guide. Focus on theory.', tags: ['EC-Council', 'MCQ Practice', '4 Hours'], color: '#c4ff6f' },
+                ]
+            },
+            {
+                id: 'oscp', label: '💀 OSCP',
+                title: 'OSCP (OffSec Certified Professional)', sub: 'The most respected hands-on pentesting cert. "Try Harder" philosophy. 24-hour exam.',
+                steps: [
+                    { title: 'Linux & Scripting', desc: 'Linux command mastery, bash scripting, Python basics for automation, file permissions, process management.', tags: ['Linux', 'Bash', 'Python'], color: '#ff6f6f' },
+                    { title: 'Networking for Pentesters', desc: 'Packet analysis, ARP poisoning, pivoting concepts, tunneling, port forwarding.', tags: ['Wireshark', 'tcpdump', 'Pivoting'], color: '#7c6fff' },
+                    { title: 'Enumeration Mastery', desc: 'This is 80% of OSCP. Thorough enumeration of every service: SMB, FTP, HTTP, SNMP, NFS.', tags: ['Nmap', 'Gobuster', 'Nikto', 'enum4linux'], color: '#6fffc4' },
+                    { title: 'Exploitation & Buffer Overflow', desc: 'Manual exploit development, stack-based buffer overflow on Windows/Linux, public exploit modification.', tags: ['BOF', 'gdb', 'pwndbg', 'Python'], color: '#ffb86f' },
+                    { title: 'Privilege Escalation', desc: 'Windows & Linux PrivEsc — misconfigured services, SUID, weak passwords, unquoted paths, token impersonation.', tags: ['WinPEAS', 'LinPEAS', 'PowerUp'], color: '#ff6f9c' },
+                    { title: 'Active Directory', desc: 'AD enumeration, Kerberoasting, AS-REP roasting, Pass-the-Hash, Pass-the-Ticket, DCSync.', tags: ['BloodHound', 'Rubeus', 'CrackMapExec'], color: '#6fbfff' },
+                    { title: 'Practice Labs & Exam Prep', desc: 'Complete all PEN-200 labs, do TJ Null\'s list on HTB, do at least 3 OSCP-like exam simulations.', tags: ['PEN-200', 'HackTheBox', '24hr Exam'], color: '#c4ff6f' },
+                ]
+            },
+            {
+                id: 'ejpt', label: '🟢 eJPT',
+                title: 'eJPT (eLearnSecurity Junior Penetration Tester)', sub: 'Best entry-level pentesting cert. Fully practical, beginner-friendly. Perfect first certification.',
+                steps: [
+                    { title: 'Networking Fundamentals', desc: 'IP addressing, subnetting, routing, protocols (TCP/UDP/ICMP). Use GNS3 or Packet Tracer to practice.', tags: ['IP/Subnetting', 'TCP/UDP', 'Routing'], color: '#6fffc4' },
+                    { title: 'Web Application Basics', desc: 'HTTP methods, cookies, basic XSS and SQLi concepts. Use DVWA and WebGoat for practice.', tags: ['HTTP', 'XSS', 'SQLi', 'DVWA'], color: '#7c6fff' },
+                    { title: 'Penetration Testing Basics', desc: 'Learn pentesting methodology: recon → scan → exploit → post-exploit. Understand phases clearly.', tags: ['Methodology', 'Phases', 'Reports'], color: '#ffb86f' },
+                    { title: 'Metasploit Framework', desc: 'Learn Metasploit modules, exploits, payloads, Meterpreter sessions, post-exploitation modules.', tags: ['Metasploit', 'Meterpreter', 'MSFvenom'], color: '#ff6f9c' },
+                    { title: 'INE Free Starter Path', desc: 'Complete eLearnSecurity\'s free Starter Pass on INE. Covers all exam topics with labs included.', tags: ['INE Platform', 'Free Labs', 'eJPT Material'], color: '#6fbfff' },
+                    { title: 'eJPT Exam', desc: '3-day practical exam, 20 questions, open-book. You need real lab experience — not just theory.', tags: ['3 Days', 'Open-book', 'Practical'], color: '#c4ff6f' },
+                ]
+            },
+            {
+                id: 'pentesting', label: '🔴 Pentesting',
+                title: 'Professional Pentesting Roadmap', sub: 'A complete journey from zero to professional penetration tester — covering all domains.',
+                steps: [
+                    { title: 'Foundation (Month 1–2)', desc: 'Linux mastery, networking, Python scripting. Set up a home lab with VMs. Learn Kali Linux thoroughly.', tags: ['Linux', 'Networking', 'Python', 'Kali'], color: '#6fffc4' },
+                    { title: 'Web Application Testing (Month 3–4)', desc: 'OWASP Top 10, Burp Suite pro, API testing, authentication flaws, business logic bugs.', tags: ['Burp Suite', 'OWASP', 'API Testing'], color: '#7c6fff' },
+                    { title: 'Network Pentesting (Month 5–6)', desc: 'Internal network assessment, AD attacks, lateral movement, credential attacks, pivoting.', tags: ['AD', 'Nmap', 'Impacket', 'CrackMapExec'], color: '#ffb86f' },
+                    { title: 'Exploitation & Post-Exploitation (Month 7–8)', desc: 'Manual exploit dev, AV evasion, persistence, data exfiltration, cleanup and reporting.', tags: ['Metasploit', 'C2', 'AV Evasion'], color: '#ff6f9c' },
+                    { title: 'Specialization (Month 9–10)', desc: 'Choose a niche: Mobile (Android/iOS), IoT, Cloud (AWS/Azure), or Thick Client assessment.', tags: ['Mobile', 'Cloud', 'IoT', 'APK'], color: '#6fbfff' },
+                    { title: 'Professional Reports & Certifications', desc: 'Write executive + technical reports. Pursue OSCP, BSCP, or PNPT. Build a public portfolio.', tags: ['OSCP', 'PNPT', 'Portfolio', 'Reports'], color: '#c4ff6f' },
+                ]
+            }
+        ];
+
+        let suggOpen = false, roadOpen = false, activeProfId = PROFESSIONS[0].id, activeRoadId = ROADMAPS[0].id;
+
+        function toggleSugg() {
+            suggOpen = !suggOpen;
+            document.getElementById('sugg-panel').classList.toggle('open', suggOpen);
+            document.getElementById('sugg-arrow').classList.toggle('open', suggOpen);
+            if (suggOpen) renderSuggPanel();
+        }
+        function renderSuggPanel() {
+            document.getElementById('prof-tabs').innerHTML = PROFESSIONS.map(p =>
+                `<div class="prof-tab ${p.id === activeProfId ? 'active' : ''}" onclick="selProf('${p.id}')">${p.label}</div>`
+            ).join('');
+            renderSuggList();
+        }
+        function selProf(id) {
+            activeProfId = id;
+            document.querySelectorAll('.prof-tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderSuggList();
+        }
+        function renderSuggList() {
+            const prof = PROFESSIONS.find(p => p.id === activeProfId);
+            document.getElementById('sugg-list').innerHTML = prof.challenges.map(c =>
+                `<div class="sugg-card" onclick="applySugg('${c.name.replace(/'/g, "\\'")}',${c.days})">
+      <div class="sugg-card-top"><div class="sugg-card-name">${c.name}</div><div class="sugg-card-days">${c.days} days</div></div>
+      <div class="sugg-card-desc">${c.desc}</div>
+      <div class="sugg-apply">→ Use this challenge</div>
+    </div>`
+            ).join('');
+        }
+        function applySugg(name, days) {
+            document.getElementById('ch-goal').value = name;
+            preDays = days;
+            document.querySelectorAll('.pch').forEach(c => c.classList.remove('sel'));
+            const match = document.querySelector(`.pch[onclick="selPre(${days},this)"]`);
+            if (match) match.classList.add('sel');
+            else document.getElementById('ch-custom').value = days;
+            suggOpen = false;
+            document.getElementById('sugg-panel').classList.remove('open');
+            document.getElementById('sugg-arrow').classList.remove('open');
+            showToast(`📋 "${name}" loaded — tap Start!`);
+        }
+
+        function toggleRoad() {
+            roadOpen = !roadOpen;
+            document.getElementById('road-panel').classList.toggle('open', roadOpen);
+            document.getElementById('road-arrow').classList.toggle('open', roadOpen);
+            if (roadOpen) renderRoadPanel();
+        }
+        function renderRoadPanel() {
+            document.getElementById('road-tabs').innerHTML = ROADMAPS.map(r =>
+                `<div class="road-tab ${r.id === activeRoadId ? 'active' : ''}" onclick="selRoad('${r.id}',event)">${r.label}</div>`
+            ).join('');
+            renderRoadContent();
+        }
+        function selRoad(id, e) {
+            activeRoadId = id;
+            document.querySelectorAll('.road-tab').forEach(t => t.classList.remove('active'));
+            e.target.classList.add('active');
+            renderRoadContent();
+        }
+        function renderRoadContent() {
+            const r = ROADMAPS.find(x => x.id === activeRoadId);
+            let html = `<div class="road-header"><div class="road-header-title">${r.title}</div><div class="road-header-sub">${r.sub}</div></div>`;
+            html += '<div class="road-content">';
+            r.steps.forEach((s, i) => {
+                html += `<div class="road-step" style="--step-color:${s.color}">
+      <div class="road-num" style="background:${s.color}">${i + 1}</div>
+      <div class="road-step-body">
+        <div class="road-step-title">${s.title}</div>
+        <div class="road-step-desc">${s.desc}</div>
+        <div class="road-step-tags">${s.tags.map(t => `<span class="road-tag">${t}</span>`).join('')}</div>
+      </div>
+    </div>`;
+            });
+            html += '</div>';
+            document.getElementById('road-content').innerHTML = html;
+        }
+
+        // ─── STATE ────────────────────────────────────────────────────────────────────
+        let state = JSON.parse(localStorage.getItem('hf_v5') || 'null') || {
+            habits: [
+                { id: 1, name: 'Morning Run', emoji: '🏃', color: '#7c6fff', time: '07:00', streak: 0, completions: {}, order: 0 },
+                { id: 2, name: 'Read 20 mins', emoji: '📚', color: '#ff6f9c', time: '', streak: 0, completions: {}, order: 1 },
+                { id: 3, name: 'Drink 8 glasses', emoji: '💧', color: '#6fffc4', time: '09:00', streak: 0, completions: {}, order: 2 },
+            ],
+            globalStreak: 0, selEmoji: '🏃', selColor: '#7c6fff', challenge: null
+        };
+        state.habits.forEach((h, i) => { if (h.order === undefined) h.order = i; });
+        state.habits.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+        let preDays = 30, editId = null, alarmHabitId = null, alarmTimers = {};
+        let ycalOpen = false, ycalRendered = false, hmOpen = false;
+        let graphRange = 7;
+
+        function save() { localStorage.setItem('hf_v5', JSON.stringify(state)); }
+        function fmtD(d) {
+            return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        }
+        function dAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return fmtD(d); }
+        function dBetween(a, b) { return Math.round((new Date(b + 'T00:00:00') - new Date(a + 'T00:00:00')) / 86400000); }
+        function addDays(s, n) { const d = new Date(s + 'T00:00:00'); d.setDate(d.getDate() + n); return fmtD(d); }
+        function fmtShow(s) { const d = new Date(s + 'T00:00:00'); return `${d.getDate()} ${MNTHS[d.getMonth()]} ${d.getFullYear()}`; }
+        function getWeek() { return Array.from({ length: 7 }, (_, i) => dAgo(6 - i)); }
+        function getLast28() { return Array.from({ length: 28 }, (_, i) => dAgo(27 - i)); }
+
+        // Helper to check if any habit was completed on a given date
+        function isDayActive(dateStr) {
+            return state.habits.length > 0 && state.habits.some(h => !!h.completions && !!h.completions[dateStr]);
+        }
+
+        // Global day streak: Consecutive days where habit routine was actively completed
+        function recalcGlobalStreak() {
+            if (!state.habits || !state.habits.length) { state.globalStreak = 0; return; }
+            TODAY = getToday();
+            const todayActive = isDayActive(TODAY);
+            let streak = 0;
+            let offset = todayActive ? 0 : 1;
+            while (true) {
+                const dateStr = dAgo(offset);
+                if (isDayActive(dateStr)) {
+                    streak++;
+                    offset++;
+                    if (offset > 3650) break;
+                } else {
+                    break;
+                }
+            }
+            state.globalStreak = streak;
+        }
+
+        // Per-habit streak: Consecutive days this specific habit was completed
+        function recalcHabitStreak(h) {
+            if (!h || !h.completions) { if (h) h.streak = 0; return; }
+            TODAY = getToday();
+            let streak = 0;
+            const isDoneToday = !!h.completions[TODAY];
+            let offset = isDoneToday ? 0 : 1;
+            while (true) {
+                const dateStr = dAgo(offset);
+                if (h.completions[dateStr]) {
+                    streak++;
+                    offset++;
+                    if (offset > 3650) break;
+                } else {
+                    break;
+                }
+            }
+            h.streak = streak;
+        }
+
+        function renderHeader() {
+            TODAY = getToday();
+            const n = new Date();
+            const dn = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            document.getElementById('hdr-date').innerHTML = `${dn[n.getDay()]}<br>${n.getDate()} ${MNTHS[n.getMonth()]} ${n.getFullYear()}`;
+        }
+
+        function toggleYcal() {
+            ycalOpen = !ycalOpen;
+            document.getElementById('ycal-panel').classList.toggle('open', ycalOpen);
+            document.getElementById('ycal-arrow').classList.toggle('open', ycalOpen);
+            document.getElementById('ycal-sub').textContent = ycalOpen ? 'Tap to collapse' : 'Tap to view full year';
+            if (ycalOpen && !ycalRendered) { renderYearlyCal(); ycalRendered = true; }
+        }
+        function toggleHeatmap() {
+            hmOpen = !hmOpen;
+            document.getElementById('hm-panel').classList.toggle('open', hmOpen);
+            document.getElementById('hm-arrow').classList.toggle('open', hmOpen);
+            document.getElementById('hm-sub').textContent = hmOpen ? 'Tap to collapse' : 'Tap to view activity';
+            if (hmOpen) renderHeatmap();
+        }
+        function renderHeatmap() {
+            const tot = state.habits.length, l28 = getLast28(), rows = [];
+            for (let i = 0; i < 4; i++) {
+                const w = l28.slice(i * 7, i * 7 + 7);
+                rows.push(`<div class="hmr">${w.map(d => {
+                    const c = state.habits.filter(h => h.completions[d]).length;
+                    const l = c === 0 ? 0 : c < tot * .33 ? 1 : c < tot * .66 ? 2 : c < tot ? 3 : 4;
+                    return `<div class="hmc l${l}"></div>`;
+                }).join('')}</div>`);
+            }
+            document.getElementById('heatmap').innerHTML = rows.join('');
+        }
+        function renderYearlyCal() {
+            const year = new Date().getFullYear(); let html = '';
+            for (let m = 0; m < 12; m++) {
+                const firstDay = new Date(year, m, 1).getDay(), dim = new Date(year, m + 1, 0).getDate();
+                let cells = '';
+                DS.forEach(d => { cells += `<div class="yd-hdr">${d[0]}</div>`; });
+                for (let i = 0; i < firstDay; i++) cells += `<div class="yd yd-empty"></div>`;
+                for (let d = 1; d <= dim; d++) {
+                    const ds = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+                    const done = state.habits.length > 0 && state.habits.some(h => h.completions[ds]);
+                    cells += `<div class="yd ${ds === TODAY ? 'yd-today' : done ? 'yd-done' : ''}">${d}</div>`;
+                }
+                html += `<div class="ym"><div class="ym-title">${MNTHS[m]}</div><div class="ym-grid">${cells}</div></div>`;
+            }
+            document.getElementById('ycal').innerHTML = html;
+        }
+
+        // ─── IPHONE AUDIO ENGINE & ALARMS ─────────────────────────────────────────────
+        let audioCtx = null;
+        let alarmAudioLoopTimer = null;
+        let isAlarmRinging = false;
+        let isPreviewPlaying = false;
+        let activePreviewBtnId = null;
+        let lastCheckedMinute = '';
+
+        function getAudioContext() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        }
+
+        // Prime audio context on first user gesture
+        function initAudioUnlock() {
+            const unlock = () => {
+                getAudioContext();
+                window.removeEventListener('click', unlock);
+                window.removeEventListener('touchstart', unlock);
+            };
+            window.addEventListener('click', unlock, { passive: true });
+            window.addEventListener('touchstart', unlock, { passive: true });
+        }
+
+        // Play one authentic cycle of Apple iPhone "Radar" Alarm
+        function playIPhoneRadarCycle() {
+            try {
+                const ctx = getAudioContext();
+                if (!ctx) return;
+                const now = ctx.currentTime;
+
+                // Frequencies for iconic iOS Radar: F#6 (1479.98Hz) and C#6 (1108.73Hz)
+                const radarNotes = [
+                    { f: 1479.98, t: 0.00 },
+                    { f: 1108.73, t: 0.13 },
+                    { f: 1479.98, t: 0.26 },
+                    { f: 1108.73, t: 0.39 }
+                ];
+
+                radarNotes.forEach(n => {
+                    const st = now + n.t;
+
+                    // Primary bell tone (Sine wave)
+                    const osc = ctx.createOscillator();
+                    const g = ctx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(n.f, st);
+
+                    // Acoustic overtone (Triangle wave at 2x frequency)
+                    const osc2 = ctx.createOscillator();
+                    const g2 = ctx.createGain();
+                    osc2.type = 'triangle';
+                    osc2.frequency.setValueAtTime(n.f * 2, st);
+
+                    // Envelopes (snappy bell attack with clean exponential decay)
+                    g.gain.setValueAtTime(0, st);
+                    g.gain.linearRampToValueAtTime(0.45, st + 0.003);
+                    g.gain.exponentialRampToValueAtTime(0.0001, st + 0.08);
+
+                    g2.gain.setValueAtTime(0, st);
+                    g2.gain.linearRampToValueAtTime(0.09, st + 0.003);
+                    g2.gain.exponentialRampToValueAtTime(0.0001, st + 0.06);
+
+                    osc.connect(g);
+                    osc2.connect(g2);
+                    g.connect(ctx.destination);
+                    g2.connect(ctx.destination);
+
+                    osc.start(st);
+                    osc.stop(st + 0.09);
+                    osc2.start(st);
+                    osc2.stop(st + 0.09);
+                });
+            } catch (e) {
+                console.warn('Radar audio playback error:', e);
+            }
+        }
+
+        // Start continuous looping iPhone alarm
+        function startIPhoneAlarm() {
+            if (isAlarmRinging) return;
+            isAlarmRinging = true;
+            playIPhoneRadarCycle();
+            if (navigator.vibrate) navigator.vibrate([150, 70, 150, 70, 150, 70, 300]);
+
+            alarmAudioLoopTimer = setInterval(() => {
+                if (!isAlarmRinging) {
+                    clearInterval(alarmAudioLoopTimer);
+                    return;
+                }
+                playIPhoneRadarCycle();
+                if (navigator.vibrate) navigator.vibrate([150, 70, 150, 70, 150, 70, 300]);
+            }, 1250);
+        }
+
+        // Stop continuous alarm
+        function stopIPhoneAlarm() {
+            isAlarmRinging = false;
+            if (alarmAudioLoopTimer) {
+                clearInterval(alarmAudioLoopTimer);
+                alarmAudioLoopTimer = null;
+            }
+            const banner = document.getElementById('alarm-banner');
+            if (banner) banner.classList.remove('ringing');
+        }
+
+        // Preview Ringtone Toggle
+        function toggleRingtonePreview(btnId) {
+            const btn = document.getElementById(btnId);
+            if (isPreviewPlaying) {
+                stopIPhoneAlarm();
+                isPreviewPlaying = false;
+                if (btn) {
+                    btn.classList.remove('playing');
+                    btn.innerHTML = '🔔 Test iPhone Ringtone';
+                }
+                activePreviewBtnId = null;
+                showToast('Ringtone preview stopped');
+                return;
+            }
+
+            getAudioContext();
+            isPreviewPlaying = true;
+            activePreviewBtnId = btnId;
+            if (btn) {
+                btn.classList.add('playing');
+                btn.innerHTML = '⏹ Stop Ringtone';
+            }
+            startIPhoneAlarm();
+            showToast('🔊 Playing iPhone Radar Ringtone...');
+
+            // Auto stop preview after 8 seconds
+            setTimeout(() => {
+                if (isPreviewPlaying && activePreviewBtnId === btnId) {
+                    toggleRingtonePreview(btnId);
+                }
+            }, 8000);
+        }
+
+        // Sync Alarms with Service Worker for background notifications
+        function syncServiceWorkerAlarms() {
+            if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+            const now = new Date();
+            const alarms = [];
+            state.habits.forEach(h => {
+                if (!h.time) return;
+                const [hh, mm] = h.time.split(':').map(Number);
+                const target = new Date();
+                target.setHours(hh, mm, 0, 0);
+                if (target <= now) target.setDate(target.getDate() + 1);
+                alarms.push({
+                    id: h.id,
+                    name: h.name,
+                    emoji: h.emoji,
+                    time: h.time,
+                    targetTime: target.getTime()
+                });
+            });
+            navigator.serviceWorker.controller.postMessage({
+                type: 'SCHEDULE_ALARMS',
+                alarms: alarms
+            });
+        }
+
+        // Check if any alarm is due right now (clock polling every 25s)
+        function checkDueAlarms() {
+            const now = new Date();
+            const currentHHMM = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            if (currentHHMM === lastCheckedMinute) return;
+            lastCheckedMinute = currentHHMM;
+
+            state.habits.forEach(h => {
+                if (h.time === currentHHMM && !h.completions[TODAY]) {
+                    triggerAlarm(h.id);
+                }
+            });
+        }
+
+        function scheduleAlarms() {
+            Object.values(alarmTimers).forEach(clearTimeout);
+            alarmTimers = {};
+            const now = new Date();
+            state.habits.forEach(h => {
+                if (!h.time) return;
+                const [hh, mm] = h.time.split(':').map(Number);
+                const al = new Date(); al.setHours(hh, mm, 0, 0);
+                if (al <= now) al.setDate(al.getDate() + 1);
+                alarmTimers[h.id] = setTimeout(() => triggerAlarm(h.id), al - now);
+            });
+            syncServiceWorkerAlarms();
+        }
+
+        function triggerAlarm(id) {
+            const h = state.habits.find(x => x.id === id);
+            if (!h) return;
+            alarmHabitId = id;
+            document.getElementById('alarm-emoji').textContent = h.emoji;
+            document.getElementById('alarm-title').textContent = h.name;
+            document.getElementById('alarm-sub').textContent = `⏰ ${h.time} — Time to complete this habit!`;
+
+            const banner = document.getElementById('alarm-banner');
+            banner.classList.add('show');
+            banner.classList.add('ringing');
+
+            // Play iPhone Radar Alarm in continuous loop
+            startIPhoneAlarm();
+
+            // Trigger system push notification
+            if (Notification.permission === 'granted') {
+                if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                    navigator.serviceWorker.controller.postMessage({
+                        type: 'FIRE_NOTIFICATION',
+                        alarm: { id: h.id, name: h.name, emoji: h.emoji, time: h.time }
+                    });
+                } else {
+                    new Notification(`⏰ ${h.name}`, {
+                        body: `${h.emoji} HabitFlow: Time to complete "${h.name}"!`,
+                        icon: './icon.svg',
+                        badge: './icon.svg',
+                        requireInteraction: true,
+                        tag: 'alarm-' + h.id
+                    });
+                }
+            }
+
+            // Auto dismiss after 60 seconds if unattended
+            setTimeout(() => {
+                if (alarmHabitId === id) {
+                    dismissAlarm();
+                    scheduleAlarms();
+                }
+            }, 60000);
+        }
+
+        function dismissAlarm() {
+            stopIPhoneAlarm();
+            document.getElementById('alarm-banner').classList.remove('show');
+            document.getElementById('alarm-banner').classList.remove('ringing');
+            alarmHabitId = null;
+        }
+
+        function alarmMarkDone() {
+            if (alarmHabitId) toggleHabit(alarmHabitId, true);
+            dismissAlarm();
+        }
+
+        function requestNotifPerm() {
+            if ('Notification' in window && Notification.permission === 'default') {
+                Notification.requestPermission().then(() => {
+                    syncServiceWorkerAlarms();
+                });
+            }
+        }
+
+        // ─── CHALLENGE ────────────────────────────────────────────────────────────────
+        function getCh() {
+            if (!state.challenge) return null;
+            const { startDate, totalDays, goalName } = state.challenge;
+            const endDate = addDays(startDate, totalDays - 1), el = dBetween(startDate, TODAY);
+            const curDay = Math.min(Math.max(el + 1, 1), totalDays), left = Math.max(0, totalDays - (el + 1));
+            const pct = Math.min(100, Math.max(0, Math.round(((el + 1) / totalDays) * 100)));
+            return { startDate, endDate, totalDays, goalName, el, curDay, left, pct, done: el >= totalDays };
+        }
+        function renderChMini() {
+            const w = document.getElementById('ch-mini-wrap');
+            if (!state.challenge) {
+                w.innerHTML = `<div class="ch-mini" onclick="swPage('challenge',document.querySelectorAll('.ni')[3])">
+      <div class="ch-hdr"><div style="display:flex;align-items:center;gap:7px"><span style="font-size:17px">🎯</span><span class="ch-title">NO ACTIVE CHALLENGE</span></div></div>
+      <div class="ch-empty">Set a goal and track your countdown!</div>
+      <div style="text-align:center"><div class="ch-sb">+ Start Challenge</div></div>
+    </div>`; return;
+            }
+            const i = getCh(), C = 2 * Math.PI * 26, off = C * (1 - i.pct / 100);
+            w.innerHTML = `<div class="ch-mini" onclick="swPage('challenge',document.querySelectorAll('.ni')[3])">
+    <div class="ch-hdr">
+      <div style="display:flex;align-items:center;gap:7px"><span>${i.done ? '🏆' : '🎯'}</span><span class="ch-title">${i.done ? 'CHALLENGE COMPLETE!' : i.totalDays + '-DAY CHALLENGE'}</span></div>
+      <div class="ch-edit">Edit</div>
+    </div>
+    <div class="ch-row">
+      <svg width="66" height="66" viewBox="0 0 66 66" style="flex-shrink:0">
+        <defs><linearGradient id="rg" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff6f9c"/><stop offset="100%" stop-color="#7c6fff"/></linearGradient></defs>
+        <circle cx="33" cy="33" r="26" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="7"/>
+        <circle cx="33" cy="33" r="26" fill="none" stroke="url(#rg)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 33 33)"/>
+        <text x="33" y="30" font-family="Syne" font-size="12" font-weight="800" fill="white" text-anchor="middle" dominant-baseline="middle">${i.pct}%</text>
+        <text x="33" y="43" font-size="8" fill="#8888aa" text-anchor="middle">done</text>
+      </svg>
+      <div style="flex:1;min-width:0">
+        <div class="ch-goal">${i.goalName}</div>
+        <div class="ch-dates">📅 ${fmtShow(i.startDate)} → ${fmtShow(i.endDate)}</div>
+        <div class="ch-bw"><div class="ch-b" style="width:${i.pct}%"></div></div>
+      </div>
+    </div>
+    <div class="ch-bot">
+      <div><span class="ch-dn">${i.curDay}</span> <span class="ch-dt">/ ${i.totalDays} days</span></div>
+      <div style="text-align:right"><div class="ch-ln">${i.left}</div><div class="ch-ll">days left</div></div>
+    </div>
+  </div>`;
+        }
+        function renderChDetail() {
+            const w = document.getElementById('ch-detail');
+            if (!state.challenge) { w.innerHTML = `<div style="text-align:center;padding:18px 0 6px;color:var(--td);font-size:13px">No active challenge. Set one below ↓</div>`; return; }
+            const i = getCh(), C = 2 * Math.PI * 34, off = C * (1 - i.pct / 100);
+            let cells = '';
+            for (let d = 1; d <= i.totalDays; d++) {
+                const dd = addDays(i.startDate, d - 1), isPast = dBetween(dd, TODAY) > 0, isT = dd === TODAY;
+                cells += `<div class="db${isPast ? ' past' : ''}${isT ? ' tday' : ''}">${d}</div>`;
+            }
+            w.innerHTML = `<div style="background:linear-gradient(135deg,#1f1228,#1a1535);border:1px solid rgba(255,111,156,.3);border-radius:var(--r);padding:18px;margin-bottom:14px;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at 85% 10%,rgba(255,111,156,.1) 0%,transparent 55%);pointer-events:none"></div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <span>${i.done ? '🏆' : '🚀'}</span>
+      <span style="font-family:'Syne',sans-serif;font-size:11px;font-weight:800;color:var(--b);letter-spacing:1px">${i.totalDays}-DAY CHALLENGE</span>
+      ${i.done ? '<span style="margin-left:auto;font-size:10px;color:var(--c);font-weight:700;background:rgba(111,255,196,.1);padding:3px 8px;border-radius:6px">DONE! 🎉</span>' : ''}
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:var(--t);margin-bottom:4px">${i.goalName}</div>
+    <div style="font-size:10px;color:var(--tf);margin-bottom:15px">📅 ${fmtShow(i.startDate)} → ${fmtShow(i.endDate)}</div>
+    <div style="display:flex;gap:14px;align-items:center;margin-bottom:15px">
+      <svg width="78" height="78" viewBox="0 0 78 78">
+        <defs><linearGradient id="rg2" x1="0%" y1="0%" x2="100%" y2="0%"><stop offset="0%" stop-color="#ff6f9c"/><stop offset="100%" stop-color="#7c6fff"/></linearGradient></defs>
+        <circle cx="39" cy="39" r="34" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="7"/>
+        <circle cx="39" cy="39" r="34" fill="none" stroke="url(#rg2)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${C}" stroke-dashoffset="${off}" transform="rotate(-90 39 39)"/>
+        <text x="39" y="35" font-family="Syne" font-size="16" font-weight="800" fill="white" text-anchor="middle" dominant-baseline="middle">${i.pct}%</text>
+        <text x="39" y="49" font-size="8" fill="#8888aa" text-anchor="middle">complete</text>
+      </svg>
+      <div style="flex:1">
+        <div style="display:flex;justify-content:space-between;margin-bottom:9px">
+          ${[{ v: i.curDay, l: 'current day', c: 'var(--t)' }, { v: i.left, l: 'days left', c: 'var(--b)' }, { v: i.totalDays, l: 'total', c: 'var(--c)' }].map(x => `<div style="text-align:center"><div style="font-family:'Syne',sans-serif;font-size:25px;font-weight:800;color:${x.c};line-height:1">${x.v}</div><div style="font-size:9px;color:var(--tf)">${x.l}</div></div>`).join('')}
+        </div>
+        <div style="background:rgba(255,255,255,.07);border-radius:100px;height:5px;overflow:hidden"><div style="height:100%;width:${i.pct}%;background:linear-gradient(90deg,var(--b),var(--a));border-radius:100px;transition:width .6s ease"></div></div>
+      </div>
+    </div>
+    <div style="font-family:'Syne',sans-serif;font-size:9px;font-weight:700;color:var(--td);letter-spacing:1.5px;text-transform:uppercase;margin-bottom:7px">Day Grid</div>
+    <div class="dg">${cells}</div>
+    <div style="display:flex;gap:12px;margin-top:9px;font-size:9px;color:var(--tf)"><span>⬜ Upcoming</span><span style="color:rgba(124,111,255,.8)">🟣 Passed</span><span style="color:var(--b)">🔴 Today</span></div>
+  </div>`;
+        }
+        function startCh() {
+            const g = document.getElementById('ch-goal').value.trim();
+            const cv = parseInt(document.getElementById('ch-custom').value);
+            const d = (cv && cv >= 1 && cv <= 365) ? cv : preDays;
+            if (!g) { showToast('⚠️ Enter a goal name'); return; }
+            state.challenge = { goalName: g, totalDays: d, startDate: TODAY }; save();
+            document.getElementById('ch-goal').value = ''; document.getElementById('ch-custom').value = '';
+            showToast(`🚀 ${d}-day challenge started!`); renderChMini(); renderChDetail();
+            boom(window.innerWidth / 2, window.innerHeight * .4);
+        }
+        function resetCh() { if (!state.challenge) { showToast('No active challenge'); return; } state.challenge = null; save(); showToast('Challenge reset'); renderChMini(); renderChDetail(); }
+        function selPre(d, el) { preDays = d; document.querySelectorAll('.pch').forEach(c => c.classList.remove('sel')); el.classList.add('sel'); }
+        function clrPre() { document.querySelectorAll('.pch').forEach(c => c.classList.remove('sel')); }
+
+        // ─── WEEK ─────────────────────────────────────────────────────────────────────
+        function renderWeek() {
+            TODAY = getToday();
+            document.getElementById('week').innerHTML = getWeek().map(ds => {
+                const d = new Date(ds + 'T00:00:00'), isT = ds === TODAY;
+                const comp = state.habits.length > 0 && state.habits.some(h => !!h.completions && !!h.completions[ds]);
+                return `<div class="dp ${isT ? 'today' : ''} ${comp && !isT ? 'done' : ''}">
+      <div class="dp-n">${DS[d.getDay()]}</div><div class="dp-d">${d.getDate()}</div><div class="dp-dot"></div>
+    </div>`;
+            }).join('');
+        }
+
+        // ─── HABITS DRAG ─────────────────────────────────────────────────────────────
+        let dragSrcId = null, dragOverId = null;
+        function renderHabits() {
+            const el = document.getElementById('hl');
+            if (!state.habits.length) {
+                el.innerHTML = `<div class="empty"><div class="empty-i">🌱</div><div class="empty-t">No habits yet.<br>Start building your routine!</div><div class="empty-cta" onclick="swPage('add',document.querySelectorAll('.ni')[2])">+ Add First Habit</div></div>`;
+                updProg(0, 0); return;
+            }
+            updProg(state.habits.filter(h => h.completions[TODAY]).length, state.habits.length);
+            el.innerHTML = state.habits.map(h => {
+                const isDone = !!h.completions[TODAY];
+                return `<div class="hc ${isDone ? 'done' : ''}" style="--hc:${h.color}" data-id="${h.id}"
+      draggable="true"
+      ontouchstart="touchStart(event,${h.id})" ontouchmove="touchMove(event)" ontouchend="touchEnd(event)"
+      ondragstart="dragStart(event,${h.id})" ondragover="dragOver(event,${h.id})" ondragend="dragEnd(event)" ondrop="drop(event,${h.id})">
+      <div class="drag-handle"><span></span><span></span><span></span></div>
+      <div class="h-em" onclick="toggleHabit(${h.id})">${h.emoji}</div>
+      <div class="h-info" onclick="toggleHabit(${h.id})">
+        <div class="h-name">${h.name}</div>
+        <div class="h-meta">${h.time ? '⏰ ' + h.time : '📅 Daily'} · ${isDone ? '✓ Done today' : 'Pending'}</div>
+      </div>
+      <div class="h-right">
+        <div class="cbtn ${isDone ? 'ck' : ''}" onclick="toggleHabit(${h.id})">
+          <svg viewBox="0 0 24 24" fill="none" stroke="${isDone ? '#0a0a0f' : '#8888aa'}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        ${h.streak >= 1 ? `<div class="hsbg">🔥 ${h.streak}d</div>` : ''}
+      </div>
+    </div>`;
+            }).join('');
+            document.querySelectorAll('.h-name').forEach(el => {
+                let lp;
+                el.addEventListener('touchstart', () => { lp = setTimeout(() => { const id = parseInt(el.closest('.hc').dataset.id); openEdit(id); }, 600); });
+                el.addEventListener('touchend', () => clearTimeout(lp));
+                el.addEventListener('touchmove', () => clearTimeout(lp));
+            });
+        }
+        function dragStart(e, id) { dragSrcId = id; e.currentTarget.classList.add('dragging'); e.dataTransfer.effectAllowed = 'move'; }
+        function dragOver(e, id) {
+            e.preventDefault(); e.dataTransfer.dropEffect = 'move';
+            if (id !== dragSrcId && id !== dragOverId) {
+                document.querySelectorAll('.hc').forEach(c => c.classList.remove('drag-over'));
+                dragOverId = id; document.querySelector(`.hc[data-id="${id}"]`)?.classList.add('drag-over');
+            }
+        }
+        function drop(e, id) { e.preventDefault(); if (dragSrcId !== id) reorderHabits(dragSrcId, id); }
+        function dragEnd(e) {
+            e.currentTarget.classList.remove('dragging');
+            document.querySelectorAll('.hc').forEach(c => c.classList.remove('drag-over', 'dragging'));
+            dragSrcId = null; dragOverId = null;
+        }
+        let touchDragId = null, touchDragEl = null, touchClone = null, touchStartY = 0;
+        function touchStart(e, id) {
+            touchDragId = id; touchStartY = e.touches[0].clientY; touchDragEl = e.currentTarget;
+            if (!e.target.closest('.drag-handle')) { touchDragId = null; return; }
+            e.preventDefault();
+            touchClone = touchDragEl.cloneNode(true);
+            touchClone.style.cssText = `position:fixed;left:${touchDragEl.getBoundingClientRect().left}px;top:${touchDragEl.getBoundingClientRect().top}px;width:${touchDragEl.offsetWidth}px;z-index:1000;opacity:.85;pointer-events:none;transition:none;box-shadow:0 16px 48px rgba(0,0,0,.7);`;
+            document.body.appendChild(touchClone); touchDragEl.style.opacity = '.3';
+        }
+        function touchMove(e) {
+            if (!touchDragId || !touchClone) return; e.preventDefault();
+            const y = e.touches[0].clientY, dy = y - touchStartY;
+            touchClone.style.top = (touchDragEl.getBoundingClientRect().top + dy) + 'px';
+            const els = document.querySelectorAll('.hc'); els.forEach(el => el.classList.remove('drag-over'));
+            for (const el of els) {
+                const r = el.getBoundingClientRect();
+                if (y >= r.top && y <= r.bottom && parseInt(el.dataset.id) !== touchDragId) { el.classList.add('drag-over'); dragOverId = parseInt(el.dataset.id); break; }
+            }
+        }
+        function touchEnd(e) {
+            if (!touchDragId) return;
+            if (touchClone) { touchClone.remove(); touchClone = null; }
+            if (touchDragEl) touchDragEl.style.opacity = '';
+            document.querySelectorAll('.hc').forEach(c => c.classList.remove('drag-over'));
+            if (dragOverId && dragOverId !== touchDragId) reorderHabits(touchDragId, dragOverId);
+            touchDragId = null; touchDragEl = null; dragOverId = null;
+        }
+        function reorderHabits(srcId, tgtId) {
+            const src = state.habits.find(h => h.id === srcId), tgt = state.habits.find(h => h.id === tgtId);
+            if (!src || !tgt) return;
+            state.habits.splice(state.habits.indexOf(src), 1);
+            state.habits.splice(state.habits.indexOf(tgt), 0, src);
+            state.habits.forEach((h, i) => h.order = i);
+            save(); renderHabits(); showToast('↕ Order updated');
+        }
+        function updProg(done, total) {
+            const p = total === 0 ? 0 : Math.round((done / total) * 100);
+            document.getElementById('pb').style.width = p + '%';
+            document.getElementById('s-pct').textContent = p + '%';
+            document.getElementById('s-num').textContent = state.globalStreak;
+        }
+        function toggleHabit(id, silent = false) {
+            const h = state.habits.find(x => x.id === id); if (!h) return;
+            if (h.completions[TODAY]) { delete h.completions[TODAY]; recalcHabitStreak(h); if (!silent) showToast('Habit unchecked'); }
+            else {
+                h.completions[TODAY] = true; recalcHabitStreak(h);
+                if (!silent) { try { boom(event.touches ? event.touches[0].clientX : event.clientX, event.touches ? event.touches[0].clientY : event.clientY); } catch (e) { } }
+                if (!silent) showToast('✅ ' + h.name + ' done!');
+            }
+            recalcGlobalStreak();
+            if (state.habits.every(x => x.completions[TODAY]) && !silent) setTimeout(() => showToast('🔥 Perfect day! Streak: ' + state.globalStreak), 900);
+            save(); renderHabits(); renderWeek();
+        }
+
+        // ─── EDIT/DELETE ──────────────────────────────────────────────────────────────
+        let editSelEmoji = '🏃', editSelColor = '#7c6fff';
+        function openEdit(id) {
+            const h = state.habits.find(x => x.id === id); if (!h) return;
+            editId = id; editSelEmoji = h.emoji; editSelColor = h.color;
+            document.getElementById('e-name').value = h.name;
+            document.getElementById('e-time').value = h.time || '';
+            renderEditForm(); document.getElementById('edit-modal').classList.add('open');
+        }
+        function renderEditForm() {
+            document.getElementById('e-eg').innerHTML = EMOJIS.map(e => `<div class="eb ${editSelEmoji === e ? 'sel' : ''}" onclick="selEditEmoji('${e}',this)">${e}</div>`).join('');
+            document.getElementById('e-cr').innerHTML = COLORS.map(c => `<div class="cd ${editSelColor === c ? 'sel' : ''}" style="background:${c}" onclick="selEditColor('${c}',this)"></div>`).join('');
+        }
+        function selEditEmoji(e, el) { editSelEmoji = e; document.querySelectorAll('#e-eg .eb').forEach(b => b.classList.remove('sel')); el.classList.add('sel'); }
+        function selEditColor(c, el) { editSelColor = c; document.querySelectorAll('#e-cr .cd').forEach(b => b.classList.remove('sel')); el.classList.add('sel'); }
+        function saveEdit() {
+            const h = state.habits.find(x => x.id === editId); if (!h) return;
+            const n = document.getElementById('e-name').value.trim();
+            if (!n) { showToast('⚠️ Enter habit name'); return; }
+            h.name = n; h.emoji = editSelEmoji; h.color = editSelColor; h.time = document.getElementById('e-time').value;
+            save(); closeModal(); renderHabits(); scheduleAlarms(); showToast('✓ Habit updated!');
+        }
+        function deleteHabit() {
+            state.habits = state.habits.filter(x => x.id !== editId);
+            state.habits.forEach((h, i) => h.order = i);
+            save(); closeModal(); renderHabits(); renderWeek(); scheduleAlarms(); showToast('🗑 Habit deleted');
+        }
+        function closeModal() { document.getElementById('edit-modal').classList.remove('open'); editId = null; }
+        document.getElementById('edit-modal').addEventListener('click', function (e) { if (e.target === this) closeModal(); });
+
+        function renderAddForm() {
+            document.getElementById('eg').innerHTML = EMOJIS.map(e => `<div class="eb ${state.selEmoji === e ? 'sel' : ''}" onclick="selEmoji('${e}',this)">${e}</div>`).join('');
+            document.getElementById('cr').innerHTML = COLORS.map(c => `<div class="cd ${state.selColor === c ? 'sel' : ''}" style="background:${c}" onclick="selColor('${c}',this)"></div>`).join('');
+        }
+        function selEmoji(e, el) { state.selEmoji = e; document.querySelectorAll('#eg .eb').forEach(b => b.classList.remove('sel')); el.classList.add('sel'); }
+        function selColor(c, el) { state.selColor = c; document.querySelectorAll('#cr .cd').forEach(b => b.classList.remove('sel')); el.classList.add('sel'); }
+        function addHabit() {
+            const n = document.getElementById('h-name').value.trim();
+            if (!n) { showToast('⚠️ Enter a habit name'); return; }
+            state.habits.push({ id: Date.now(), name: n, emoji: state.selEmoji, color: state.selColor, time: document.getElementById('h-time').value, streak: 0, completions: {}, order: state.habits.length });
+            save(); document.getElementById('h-name').value = ''; document.getElementById('h-time').value = '';
+            showToast('🎉 Habit created!'); scheduleAlarms(); swPage('today', document.querySelectorAll('.ni')[0]);
+        }
+
+        // ─── STATS ────────────────────────────────────────────────────────────────────
+        function renderStats() {
+            const tot = state.habits.length, td = state.habits.filter(h => h.completions[TODAY]).length;
+            const w7 = getWeek(), wc = w7.reduce((s, d) => s + state.habits.filter(h => h.completions[d]).length, 0);
+            const wp = tot * 7 === 0 ? 0 : Math.round((wc / (tot * 7)) * 100);
+            const ci = getCh();
+            document.getElementById('sg').innerHTML = [
+                { i: '📋', v: tot, n: 'Total Habits' }, { i: '✅', v: td + '/' + tot, n: "Today's Done" },
+                { i: '🔥', v: state.globalStreak, n: 'Streak Days' }, { i: '📈', v: wp + '%', n: 'Weekly Rate' },
+                { i: '🎯', v: ci ? 'Day ' + ci.curDay : '—', n: 'Challenge Day' }, { i: '⏳', v: ci ? ci.left + 'd' : '—', n: 'Days Left' },
+            ].map(s => `<div class="sc"><div class="sc-i">${s.i}</div><div class="sc-v">${s.v}</div><div class="sc-n">${s.n}</div></div>`).join('');
+            if (hmOpen) renderHeatmap();
+            if (ycalOpen) renderYearlyCal();
+            const pe = document.getElementById('hperf');
+            if (!state.habits.length) { pe.innerHTML = '<div style="color:var(--tf);font-size:12px;text-align:center;padding:16px">Add habits to see performance</div>'; return; }
+            pe.innerHTML = state.habits.map(h => {
+                const t = Object.keys(h.completions).length, p = Math.min(100, Math.round((t / 30) * 100));
+                return `<div class="hperf-card">
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px">
+        <span style="font-size:20px">${h.emoji}</span>
+        <span style="font-family:'Syne',sans-serif;font-size:12px;font-weight:700;flex:1">${h.name}</span>
+        <span style="font-size:11px;color:var(--td);margin-right:7px">🔥${h.streak}d</span>
+        <span onclick="openEdit(${h.id})" style="font-family:'Syne',sans-serif;font-size:10px;font-weight:700;color:var(--a);background:rgba(124,111,255,.12);border:1px solid rgba(124,111,255,.25);border-radius:8px;padding:4px 11px;cursor:pointer;-webkit-user-select:none">Edit</span>
+      </div>
+      <div style="background:var(--s2);border-radius:100px;height:5px;overflow:hidden"><div style="height:100%;width:${p}%;background:${h.color};border-radius:100px;transition:width .5s ease"></div></div>
+      <div style="font-size:10px;color:var(--tf);margin-top:5px">${t} completions · ${p}% of 30-day goal</div>
+    </div>`;
+            }).join('');
+        }
+
+        // ─── PROGRESS GRAPH ───────────────────────────────────────────────────────────
+        function setRange(r, el) {
+            graphRange = r;
+            document.querySelectorAll('.graph-range-btn').forEach(b => b.classList.remove('active'));
+            el.classList.add('active');
+            drawGraph();
+        }
+
+        function getGraphData(days) {
+            const tot = state.habits.length || 1;
+            return Array.from({ length: days }, (_, i) => {
+                const day = dAgo(days - 1 - i);
+                const done = state.habits.filter(h => h.completions[day]).length;
+                return { day, pct: Math.round((done / tot) * 100) };
+            });
+        }
+
+        function drawGraph() {
+            const canvas = document.getElementById('graph-canvas');
+            if (!canvas) return;
+            const wrap = canvas.parentElement;
+            const W = wrap.clientWidth || 300;
+            const H = 180;
+            canvas.width = W * window.devicePixelRatio;
+            canvas.height = H * window.devicePixelRatio;
+            canvas.style.width = W + 'px';
+            canvas.style.height = H + 'px';
+            const ctx = canvas.getContext('2d');
+            ctx.scale(window.devicePixelRatio, window.devicePixelRatio);
+
+            const data = getGraphData(graphRange);
+            const pad = { t: 16, r: 16, b: 32, l: 36 };
+            const gW = W - pad.l - pad.r, gH = H - pad.t - pad.b;
+
+            // Background grid
+            ctx.strokeStyle = 'rgba(42,42,58,.8)';
+            ctx.lineWidth = 1;
+            [0, 25, 50, 75, 100].forEach(v => {
+                const y = pad.t + gH - (v / 100) * gH;
+                ctx.beginPath(); ctx.moveTo(pad.l, y); ctx.lineTo(pad.l + gW, y); ctx.stroke();
+                ctx.fillStyle = '#44445a'; ctx.font = `${9 * window.devicePixelRatio / window.devicePixelRatio}px DM Sans`;
+                ctx.textAlign = 'right'; ctx.fillText(v + '%', pad.l - 6, y + 3);
+            });
+
+            // Compute moving average (trend line)
+            const avg = data.map((_, i) => {
+                const slice = data.slice(Math.max(0, i - 2), i + 3);
+                return slice.reduce((s, d) => s + d.pct, 0) / slice.length;
+            });
+
+            const xStep = gW / Math.max(data.length - 1, 1);
+
+            // Area fill
+            const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + gH);
+            grad.addColorStop(0, 'rgba(124,111,255,.35)');
+            grad.addColorStop(1, 'rgba(124,111,255,.02)');
+            ctx.beginPath();
+            data.forEach((d, i) => {
+                const x = pad.l + i * xStep;
+                const y = pad.t + gH - (d.pct / 100) * gH;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.lineTo(pad.l + (data.length - 1) * xStep, pad.t + gH);
+            ctx.lineTo(pad.l, pad.t + gH);
+            ctx.closePath();
+            ctx.fillStyle = grad; ctx.fill();
+
+            // Main line
+            ctx.beginPath();
+            ctx.strokeStyle = '#7c6fff'; ctx.lineWidth = 2.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+            data.forEach((d, i) => {
+                const x = pad.l + i * xStep, y = pad.t + gH - (d.pct / 100) * gH;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke();
+
+            // Trend line
+            ctx.beginPath();
+            ctx.strokeStyle = '#ff6f9c'; ctx.lineWidth = 1.5; ctx.setLineDash([4, 4]);
+            avg.forEach((v, i) => {
+                const x = pad.l + i * xStep, y = pad.t + gH - (v / 100) * gH;
+                i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+            });
+            ctx.stroke(); ctx.setLineDash([]);
+
+            // Dots
+            data.forEach((d, i) => {
+                const x = pad.l + i * xStep, y = pad.t + gH - (d.pct / 100) * gH;
+                if (d.pct > 0 || i === data.length - 1) {
+                    ctx.beginPath();
+                    ctx.arc(x, y, 3.5, 0, Math.PI * 2);
+                    ctx.fillStyle = d.pct === 100 ? '#6fffc4' : '#7c6fff';
+                    ctx.fill();
+                    ctx.strokeStyle = '#0a0a0f'; ctx.lineWidth = 1.5; ctx.stroke();
+                }
+            });
+
+            // X labels
+            ctx.fillStyle = '#44445a'; ctx.font = `9px DM Sans`; ctx.textAlign = 'center';
+            const labelStep = Math.ceil(data.length / 7);
+            data.forEach((d, i) => {
+                if (i % labelStep === 0 || i === data.length - 1) {
+                    const x = pad.l + i * xStep;
+                    const date = new Date(d.day + 'T00:00:00');
+                    ctx.fillText(`${date.getDate()}/${date.getMonth() + 1}`, x, H - 8);
+                }
+            });
+
+            // Touch interaction
+            canvas.ontouchmove = canvas.onmousemove = (e) => {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const mx = clientX - rect.left;
+                let closest = 0, minDist = Infinity;
+                data.forEach((_, i) => {
+                    const x = pad.l + i * xStep;
+                    const dist = Math.abs(mx - x);
+                    if (dist < minDist) { minDist = dist; closest = i; }
+                });
+                const d = data[closest];
+                const tx = pad.l + closest * xStep;
+                const ty = pad.t + gH - (d.pct / 100) * gH;
+                const tip = document.getElementById('graph-tooltip');
+                const date = new Date(d.day + 'T00:00:00');
+                tip.innerHTML = `<b>${date.getDate()} ${MNTHS[date.getMonth()]}</b><br>${d.pct}% completed`;
+                tip.style.display = 'block';
+                tip.style.left = Math.min(tx - 40, W - 110) + 'px';
+                tip.style.top = Math.max(ty - 55, 0) + 'px';
+            };
+            canvas.ontouchend = canvas.onmouseleave = () => {
+                document.getElementById('graph-tooltip').style.display = 'none';
+            };
+        }
+
+        function renderGraphPage() {
+            if (!state.habits.length) {
+                document.getElementById('graph-stats-row').innerHTML = '';
+                document.getElementById('best-day-card').innerHTML = `<div class="best-day-icon">🌱</div><div><div class="best-day-title">No Data Yet</div><div class="best-day-val" style="font-size:14px">Add habits to see progress</div></div>`;
+                document.getElementById('habit-breakdown').innerHTML = '<div style="color:var(--tf);font-size:12px;text-align:center;padding:16px">Add habits to see breakdown</div>';
+                drawGraph(); return;
+            }
+
+            const data30 = getGraphData(30);
+            const avg30 = data30.reduce((s, d) => s + d.pct, 0) / 30;
+            const doneToday = state.habits.filter(h => h.completions[TODAY]).length;
+            const bestPct = Math.max(...data30.map(d => d.pct));
+            const bestDay = data30.find(d => d.pct === bestPct);
+
+            document.getElementById('graph-stats-row').innerHTML = [
+                { v: Math.round(avg30) + '%', l: '30-Day Avg', c: 'var(--a)' },
+                { v: doneToday + '/' + state.habits.length, l: 'Today Done', c: 'var(--c)' },
+                { v: state.globalStreak, l: 'Day Streak', c: 'var(--b)' },
+            ].map(s => `<div class="graph-stat"><div class="graph-stat-v" style="color:${s.c}">${s.v}</div><div class="graph-stat-l">${s.l}</div></div>`).join('');
+
+            const bestDate = bestDay ? new Date(bestDay.day + 'T00:00:00') : null;
+            document.getElementById('best-day-card').innerHTML = `
+    <div class="best-day-icon">🏆</div>
+    <div>
+      <div class="best-day-title">BEST DAY</div>
+      <div class="best-day-val">${bestPct}% Complete</div>
+      <div class="best-day-sub">${bestDate ? bestDate.getDate() + ' ' + MNTHS[bestDate.getMonth()] + ' ' + bestDate.getFullYear() : 'No data'}</div>
+    </div>`;
+
+            drawGraph();
+
+            // Per-habit breakdown
+            const maxComp = Math.max(...state.habits.map(h => Object.keys(h.completions).length), 1);
+            document.getElementById('habit-breakdown').innerHTML = state.habits.map(h => {
+                const cnt = Object.keys(h.completions).length;
+                const pct = Math.round((cnt / Math.max(maxComp, 1)) * 100);
+                return `<div class="hb-row">
+      <span style="font-size:18px;flex-shrink:0">${h.emoji}</span>
+      <div style="flex:1;min-width:0">
+        <div style="font-family:'Syne',sans-serif;font-size:11px;font-weight:700;color:var(--t);margin-bottom:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${h.name}</div>
+        <div class="hb-bar-wrap"><div class="hb-bar" style="width:${pct}%;background:${h.color}"></div></div>
+      </div>
+      <div class="hb-pct">${cnt}d</div>
+    </div>`;
+            }).join('');
+        }
+
+        function resetHabitDays() {
+            if (!state.habits || !state.habits.length) {
+                showToast('⚠️ No habits found');
+                return;
+            }
+            if (!confirm('Are you sure you want to reset all habit day counts to 0? Your habits will not be deleted.')) {
+                return;
+            }
+            state.habits.forEach(h => {
+                h.completions = {};
+                h.streak = 0;
+            });
+            recalcGlobalStreak();
+            save();
+            renderGraphPage();
+            renderHabits();
+            renderWeek();
+            renderChMini();
+            showToast('✓ All habit days reset to 0');
+        }
+
+        // ─── NAV ─────────────────────────────────────────────────────────────────────
+        function swPage(n, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.ni').forEach(x => x.classList.remove('active'));
+            document.getElementById('page-' + n).classList.add('active');
+            if (el) el.classList.add('active');
+            if (n === 'stats') renderStats();
+            if (n === 'add') renderAddForm();
+            if (n === 'challenge') renderChDetail();
+            if (n === 'graph') setTimeout(renderGraphPage, 50);
+        }
+        function dimissInstall() { document.getElementById('ibanner').style.display = 'none'; localStorage.setItem('hf_ib', '1'); }
+
+        function boom(x, y) {
+            const cl = ['#7c6fff', '#ff6f9c', '#6fffc4', '#ffb86f', '#6fbfff'];
+            for (let i = 0; i < 16; i++) {
+                const p = document.createElement('div'); p.className = 'cp';
+                p.style.cssText = `left:${x + (Math.random() - .5) * 110}px;top:${y}px;background:${cl[~~(Math.random() * 5)]};animation-delay:${Math.random() * .3}s;animation-duration:${.7 + Math.random() * .4}s;`;
+                document.body.appendChild(p); setTimeout(() => p.remove(), 1300);
+            }
+        }
+        let tt;
+        function showToast(m) {
+            const t = document.getElementById('toast'); t.textContent = m;
+            t.classList.add('show'); clearTimeout(tt); tt = setTimeout(() => t.classList.remove('show'), 2400);
+        }
+
+        // Midnight date rollover watcher
+        function checkMidnight() {
+            const currentToday = getToday();
+            if (currentToday !== TODAY) {
+                TODAY = currentToday;
+                state.habits.forEach(h => recalcHabitStreak(h));
+                recalcGlobalStreak();
+                renderHeader();
+                renderWeek();
+                renderHabits();
+                renderChMini();
+                if (ycalOpen) renderYearlyCal();
+                if (hmOpen) renderHeatmap();
+            }
+        }
+
+        function init() {
+            TODAY = getToday();
+            state.habits.forEach(h => recalcHabitStreak(h));
+            recalcGlobalStreak();
+            renderHeader();
+            renderWeek();
+            renderHabits();
+            renderChMini();
+            if (localStorage.getItem('hf_ib')) document.getElementById('ibanner').style.display = 'none';
+
+            initAudioUnlock();
+            requestNotifPerm();
+            scheduleAlarms();
+            setInterval(scheduleAlarms, 60000);
+            setInterval(checkDueAlarms, 25000);
+            setInterval(checkMidnight, 15000);
+            setInterval(renderHeader, 60000);
+
+            // Register Service Worker for true background alarms & offline support
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.register('./sw.js').then((reg) => {
+                    console.log('HabitFlow Service Worker active:', reg.scope);
+                    syncServiceWorkerAlarms();
+                }).catch((err) => {
+                    console.warn('Service Worker registration failed:', err);
+                });
+
+                navigator.serviceWorker.addEventListener('message', (event) => {
+                    if (event.data && event.data.type === 'ALARM_MARK_DONE') {
+                        toggleHabit(event.data.habitId, false);
+                    } else if (event.data && event.data.type === 'TRIGGER_ALARM_NOW') {
+                        triggerAlarm(event.data.habitId);
+                    }
+                });
+            }
+
+            // Handle background notification clicks with URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const markDoneId = urlParams.get('markDone');
+            const alarmId = urlParams.get('alarmId');
+            if (markDoneId) {
+                setTimeout(() => {
+                    toggleHabit(Number(markDoneId), false);
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 400);
+            } else if (alarmId) {
+                setTimeout(() => {
+                    triggerAlarm(Number(alarmId));
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }, 400);
+            }
+        }
+        init();
+    </script>
+</body>
+
+</html>
